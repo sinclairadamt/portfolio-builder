@@ -18,7 +18,7 @@ export function renderPage({ pageKey, project, resolveAsset, bodyHtml, descripti
   const { siteSettings } = project
   const siteTitle = siteSettings.siteTitle || 'My Portfolio'
   const pageTitle = pageKey === 'home' ? siteTitle : `${PAGES[pageKey].title} — ${siteTitle}`
-  const metaDescription = escapeHtml(description || siteSettings.tagline || '')
+  const metaDescription = escapeHtml(description || '')
 
   const logoSrc = siteSettings.logoAssetId ? resolveAsset(siteSettings.logoAssetId) : ''
   const ogImageAssetId = siteSettings.logoAssetId || firstPortfolioImageAssetId(project)
@@ -55,10 +55,7 @@ ${renderThemeStyleTag(siteSettings)}
 </head>
 <body>
 <header class="site-header">
-  <div class="site-brand">
-    <a class="site-title" href="${homeHref}"${homeDataPage}>${logoSrc ? `<img class="site-logo" src="${escapeHtml(logoSrc)}" alt="">` : ''}${escapeHtml(siteTitle)}</a>
-    ${siteSettings.tagline ? `<p class="site-tagline">${escapeHtml(siteSettings.tagline)}</p>` : ''}
-  </div>
+  <a class="site-title" href="${homeHref}"${homeDataPage}>${logoSrc ? `<img class="site-logo" src="${escapeHtml(logoSrc)}" alt="">` : ''}${escapeHtml(siteTitle)}</a>
   <nav class="site-nav">${nav}</nav>
 </header>
 <main>${bodyHtml}</main>

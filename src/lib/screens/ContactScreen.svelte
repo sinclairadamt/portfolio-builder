@@ -43,7 +43,7 @@
       }}
     />
 
-    <label for="phone">Phone (optional)</label>
+    <label for="phone">Phone</label>
     <input
       id="phone"
       type="tel"

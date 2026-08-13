@@ -1,12 +1,3 @@
-// Curated choices only -- freeform color/font entry risks broken combinations
-// on a site the instructor can't proofread for every student. Presets keep
-// the "one polished theme" promise while still feeling personalized.
-export const COLOR_PRESETS = {
-  ocean: { primary: '#0B5FFF', secondary: '#00B3A4', background: '#FFFFFF', text: '#1A1A1A' },
-  sunset: { primary: '#E8551E', secondary: '#F2A93B', background: '#FFFDF9', text: '#241A14' },
-  forest: { primary: '#1F7A4D', secondary: '#8BB33A', background: '#FBFCF9', text: '#16241C' },
-  slate: { primary: '#3D4A5C', secondary: '#7C90A8', background: '#F7F8FA', text: '#1B222B' },
-}
 
 export const FONT_PAIRS = {
   'poppins-inter': {
@@ -84,7 +75,6 @@ img { max-width: 100%; display: block; }
   padding: 1rem 1.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
-.site-brand { display: flex; flex-direction: column; gap: 0.15rem; }
 .site-title {
   display: flex;
   align-items: center;
@@ -95,7 +85,6 @@ img { max-width: 100%; display: block; }
   text-decoration: none;
   color: var(--color-text);
 }
-.site-tagline { margin: 0; font-size: 0.9rem; font-weight: 400; opacity: 0.7; }
 .site-logo { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
 .site-nav { display: flex; gap: 1.25rem; }
 .site-nav a { text-decoration: none; color: var(--color-text); font-weight: 500; }

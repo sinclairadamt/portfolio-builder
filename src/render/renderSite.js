@@ -22,7 +22,6 @@ export function renderSitePages(project, { makeResolver, isPreview = false } = {
       project,
       resolveAsset: homeResolve,
       bodyHtml: renderHomePage(project, homeResolve),
-      description: project.siteSettings.tagline,
       isPreview,
     }),
     about: renderPage({

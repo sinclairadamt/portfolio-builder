@@ -2,7 +2,7 @@
 // export. pathPrefix is how far up from the *current* page you need to go to
 // reach the site root -- '' for home, '../' for the one-level-deep pages.
 export const PAGES = {
-  home: { slug: '', title: 'Home' },
+  home: { slug: '', title: 'Portfolio' },
   about: { slug: 'about', title: 'About' },
   contact: { slug: 'contact', title: 'Contact' },
 }

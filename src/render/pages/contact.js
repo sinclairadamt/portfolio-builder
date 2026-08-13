@@ -12,7 +12,7 @@ export function renderContactPage(project) {
 
   const infoLines = [
     email ? `<p><a href="mailto:${emailSafe}">${emailSafe}</a></p>` : '',
-    phone ? `<p>${escapeHtml(phone)}</p>` : '',
+    phone ? `<p><a href="tel:${toTelHref(phone)}">${escapeHtml(phone)}</a></p>` : '',
     renderLocation(location),
     renderSocialLinks(socialLinks),
   ]
@@ -25,6 +25,15 @@ export function renderContactPage(project) {
   </div>
   ${renderForm(email, emailSafe)}
 </section>`
+}
+
+// tel: links need digits (and a leading + for international numbers) only --
+// formatting characters like ()-. would make some phone apps refuse the
+// link. The visible text stays exactly as the student typed it.
+function toTelHref(phone) {
+  const trimmed = phone.trim()
+  const digits = trimmed.replace(/\D/g, '')
+  return trimmed.startsWith('+') ? `+${digits}` : digits
 }
 
 function renderLocation(location) {

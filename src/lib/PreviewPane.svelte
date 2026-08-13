@@ -3,7 +3,7 @@
   import { renderSitePages } from '../render/renderSite.js'
   import { buildPreviewAssetResolver } from '../render/previewResolver.js'
 
-  let { session, pageKey } = $props()
+  let { session, pageKey, minHeight = '500px' } = $props()
   let html = $state('')
   let currentPageKey = $state(untrack(() => pageKey))
   let requestToken = 0
@@ -50,7 +50,7 @@
 
 <div class="preview-pane">
   <p class="preview-label">Live Preview — {currentPageKey}</p>
-  <iframe title="Site preview" srcdoc={html}></iframe>
+  <iframe title="Site preview" srcdoc={html} style="min-height: {minHeight}"></iframe>
 </div>
 
 <style>

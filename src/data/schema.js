@@ -9,11 +9,9 @@ export function createEmptyProject() {
     schemaVersion: SCHEMA_VERSION,
     siteSettings: {
       siteTitle: '',
-      tagline: '',
       publishUrl: '',
       logoAssetId: null,
       colorPalette: {
-        presetId: 'ocean',
         primary: '#0B5FFF',
         secondary: '#00B3A4',
         background: '#FFFFFF',

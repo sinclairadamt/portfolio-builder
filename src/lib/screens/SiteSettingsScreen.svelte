@@ -1,21 +1,59 @@
 <script>
-  import { COLOR_PRESETS, FONT_PAIRS } from '../../render/theme.js'
+  import { untrack } from 'svelte'
+  import { FONT_PAIRS } from '../../render/theme.js'
   import { ingestImageAsset, removeAsset } from '../../media/assetRegistry.js'
   import MediaThumb from '../MediaThumb.svelte'
   import PreviewPane from '../PreviewPane.svelte'
 
+  const HEX_COLOR_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
+
   let { session } = $props()
   const settings = $derived(session.project.siteSettings)
+
+  // Local, freely-typeable copies of the hex fields -- can't bind these
+  // directly to settings.colorPalette.* or every keystroke of an
+  // incomplete/invalid hex code would get overwritten back to the last valid
+  // value. Only a valid hex code gets committed back to the project.
+  let primaryHexInput = $state(untrack(() => settings.colorPalette.primary))
+  let secondaryHexInput = $state(untrack(() => settings.colorPalette.secondary))
+
+  $effect(() => {
+    primaryHexInput = settings.colorPalette.primary
+  })
+  $effect(() => {
+    secondaryHexInput = settings.colorPalette.secondary
+  })
 
   function update() {
     session.scheduleSave()
   }
 
-  function applyPreset(presetId) {
-    const preset = COLOR_PRESETS[presetId]
-    if (!preset) return
-    settings.colorPalette = { presetId, ...preset }
+  function onPrimaryColorPicked(e) {
+    settings.colorPalette.primary = e.target.value
+    primaryHexInput = e.target.value
     update()
+  }
+
+  function onPrimaryHexTyped(e) {
+    primaryHexInput = e.target.value
+    if (HEX_COLOR_RE.test(primaryHexInput)) {
+      settings.colorPalette.primary = primaryHexInput
+      update()
+    }
+  }
+
+  function onSecondaryColorPicked(e) {
+    settings.colorPalette.secondary = e.target.value
+    secondaryHexInput = e.target.value
+    update()
+  }
+
+  function onSecondaryHexTyped(e) {
+    secondaryHexInput = e.target.value
+    if (HEX_COLOR_RE.test(secondaryHexInput)) {
+      settings.colorPalette.secondary = secondaryHexInput
+      update()
+    }
   }
 
   async function onLogoChange(event) {
@@ -45,17 +83,7 @@
       }}
     />
 
-    <label for="tagline">Tagline</label>
-    <input
-      id="tagline"
-      value={settings.tagline}
-      oninput={(e) => {
-        settings.tagline = e.target.value
-        update()
-      }}
-    />
-
-    <label for="publish-url">Publish URL (optional)</label>
+    <label for="publish-url">Publish URL</label>
     <input
       id="publish-url"
       value={settings.publishUrl}
@@ -72,18 +100,21 @@
     {/if}
     <input id="logo" type="file" accept="image/*" onchange={onLogoChange} />
 
-    <label for="palette">Color Palette</label>
-    <div id="palette" class="palette-options">
-      {#each Object.entries(COLOR_PRESETS) as [id, preset] (id)}
-        <button
-          class="palette-swatch"
-          class:selected={settings.colorPalette.presetId === id}
-          style="background:{preset.primary}"
-          onclick={() => applyPreset(id)}
-          aria-label={id}
-          title={id}
-        ></button>
-      {/each}
+    <label for="primary-color">Link &amp; Button Color</label>
+    <div class="color-input-row">
+      <input id="primary-color" type="color" value={settings.colorPalette.primary} oninput={onPrimaryColorPicked} />
+      <input class="hex-input" value={primaryHexInput} oninput={onPrimaryHexTyped} />
+    </div>
+
+    <label for="secondary-color">Accent Line Color</label>
+    <div class="color-input-row">
+      <input
+        id="secondary-color"
+        type="color"
+        value={settings.colorPalette.secondary}
+        oninput={onSecondaryColorPicked}
+      />
+      <input class="hex-input" value={secondaryHexInput} oninput={onSecondaryHexTyped} />
     </div>
 
     <label for="font-pair">Fonts</label>
@@ -131,20 +162,19 @@
     border-radius: 6px;
   }
 
-  .palette-options {
+  .color-input-row {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
   }
 
-  .palette-swatch {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    cursor: pointer;
+  input[type='color'] {
+    padding: 0.2rem;
+    width: 48px;
+    height: 40px;
   }
 
-  .palette-swatch.selected {
-    border-color: #1a1a1a;
+  .hex-input {
+    width: 120px;
   }
 </style>
