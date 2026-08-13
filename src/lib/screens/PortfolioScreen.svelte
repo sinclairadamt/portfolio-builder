@@ -149,11 +149,15 @@
               update()
             }}
           />
-          <button onclick={() => moveCategory(index, -1)} disabled={index === 0}>&uarr;</button>
-          <button onclick={() => moveCategory(index, 1)} disabled={index === portfolio.categories.length - 1}>
+          <button onclick={() => moveCategory(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
+          <button
+            onclick={() => moveCategory(index, 1)}
+            disabled={index === portfolio.categories.length - 1}
+            aria-label="Move down"
+          >
             &darr;
           </button>
-          <button onclick={() => removeCategory(category.id)}>Remove</button>
+          <button onclick={() => removeCategory(category.id)} aria-label="Remove category">&times;</button>
         </div>
       {/each}
       <button onclick={addCategory}>+ Add Category</button>
@@ -174,14 +178,15 @@
                 update()
               }}
             />
-            <button onclick={() => moveProject(index, -1)} disabled={index === 0}>&uarr;</button>
+            <button onclick={() => moveProject(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
             <button
               onclick={() => moveProject(index, 1)}
               disabled={index === selectedCategory.projects.length - 1}
+              aria-label="Move down"
             >
               &darr;
             </button>
-            <button onclick={() => removeProject(proj.id)}>Remove</button>
+            <button onclick={() => removeProject(proj.id)} aria-label="Remove project">&times;</button>
           </div>
         {/each}
         <button onclick={addProject}>+ Add Project</button>
@@ -245,11 +250,15 @@
               </div>
             {/if}
             <div class="media-row-actions">
-              <button onclick={() => moveMedia(index, -1)} disabled={index === 0}>&uarr;</button>
-              <button onclick={() => moveMedia(index, 1)} disabled={index === selectedProject.media.length - 1}>
+              <button onclick={() => moveMedia(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
+              <button
+                onclick={() => moveMedia(index, 1)}
+                disabled={index === selectedProject.media.length - 1}
+                aria-label="Move down"
+              >
                 &darr;
               </button>
-              <button onclick={() => removeMedia(index)}>Remove</button>
+              <button onclick={() => removeMedia(index)} aria-label="Remove media">&times;</button>
             </div>
           </div>
         {/each}
@@ -282,7 +291,7 @@
   }
 
   .column {
-    min-width: 220px;
+    min-width: 240px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -298,10 +307,15 @@
     display: flex;
     gap: 0.3rem;
     align-items: center;
+    /* Without this, a flex row can overflow its column's bounds and visually
+       bleed into the next column instead of shrinking or wrapping. */
+    min-width: 0;
+    flex-wrap: wrap;
   }
 
   .row-name {
     flex: 1;
+    min-width: 0;
     padding: 0.4rem;
     border: 1px solid #ccc;
     border-radius: 6px;

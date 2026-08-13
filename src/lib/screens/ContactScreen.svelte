@@ -111,17 +111,15 @@
 <style>
   .screen {
     display: flex;
+    flex-direction: column;
     gap: 2rem;
-    align-items: flex-start;
-    flex-wrap: wrap;
   }
 
   .form-pane {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    min-width: 280px;
-    flex: 1;
+    max-width: 500px;
   }
 
   label {

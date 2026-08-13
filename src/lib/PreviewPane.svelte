@@ -1,10 +1,32 @@
 <script>
+  import { untrack } from 'svelte'
   import { renderSitePages } from '../render/renderSite.js'
   import { buildPreviewAssetResolver } from '../render/previewResolver.js'
 
   let { session, pageKey } = $props()
   let html = $state('')
+  let currentPageKey = $state(untrack(() => pageKey))
   let requestToken = 0
+
+  // Reset to the screen's own default page whenever the pageKey prop changes
+  // (e.g. this component remounts fresh when switching editor tabs).
+  $effect(() => {
+    currentPageKey = pageKey
+  })
+
+  // The preview has no real file tree behind it (it's one iframe showing one
+  // page at a time), so nav clicks inside it can't really navigate -- they're
+  // intercepted and posted here instead (see components/previewNav.js) to
+  // swap which page renders into the same iframe.
+  $effect(() => {
+    function handleMessage(event) {
+      if (event.data?.source === 'portfolio-builder-preview') {
+        currentPageKey = event.data.pageKey
+      }
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  })
 
   $effect(() => {
     // JSON round-tripping the project synchronously (inside the tracked
@@ -13,20 +35,21 @@
     // await, where Svelte can no longer track reads.
     const snapshot = JSON.parse(JSON.stringify(session.project))
     const store = session.store
+    const key = currentPageKey
     const token = ++requestToken
     if (!store) return
 
     ;(async () => {
       const resolveAsset = await buildPreviewAssetResolver(store, snapshot)
-      const pages = renderSitePages(snapshot, { makeResolver: () => resolveAsset })
+      const pages = renderSitePages(snapshot, { makeResolver: () => resolveAsset, isPreview: true })
       // Guards against a slower, now-stale render overwriting a newer one.
-      if (token === requestToken) html = pages[pageKey]
+      if (token === requestToken) html = pages[key]
     })()
   })
 </script>
 
 <div class="preview-pane">
-  <p class="preview-label">Live Preview — {pageKey}</p>
+  <p class="preview-label">Live Preview — {currentPageKey}</p>
   <iframe title="Site preview" srcdoc={html}></iframe>
 </div>
 

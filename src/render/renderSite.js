@@ -9,7 +9,7 @@ import { makeExportAssetResolver, pathPrefixFor } from './paths.js'
 // asset URLs resolve. `makeResolver(pathPrefix) => (assetId) => url` defaults
 // to relative export paths; preview mode passes one that ignores pathPrefix
 // entirely and looks up pre-warmed blob: URLs instead (see ProjectSession).
-export function renderSitePages(project, { makeResolver } = {}) {
+export function renderSitePages(project, { makeResolver, isPreview = false } = {}) {
   const resolverFactory = makeResolver ?? ((pathPrefix) => makeExportAssetResolver(project, pathPrefix))
 
   const homeResolve = resolverFactory(pathPrefixFor('home'))
@@ -23,18 +23,21 @@ export function renderSitePages(project, { makeResolver } = {}) {
       resolveAsset: homeResolve,
       bodyHtml: renderHomePage(project, homeResolve),
       description: project.siteSettings.tagline,
+      isPreview,
     }),
     about: renderPage({
       pageKey: 'about',
       project,
       resolveAsset: aboutResolve,
       bodyHtml: renderAboutPage(project, aboutResolve),
+      isPreview,
     }),
     contact: renderPage({
       pageKey: 'contact',
       project,
       resolveAsset: contactResolve,
       bodyHtml: renderContactPage(project),
+      isPreview,
     }),
   }
 }
