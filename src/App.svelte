@@ -7,8 +7,9 @@
   import ContactScreen from './lib/screens/ContactScreen.svelte'
   import PortfolioScreen from './lib/screens/PortfolioScreen.svelte'
   import SiteSettingsScreen from './lib/screens/SiteSettingsScreen.svelte'
+  import PublishScreen from './lib/screens/PublishScreen.svelte'
 
-  const sections = ['Portfolio', 'About', 'Contact', 'Site Settings']
+  const sections = ['Portfolio', 'About', 'Contact', 'Site Settings', 'Publish']
   let activeSection = $state('Portfolio')
   let session = $state(new ProjectSession())
 
@@ -42,6 +43,8 @@
       <PortfolioScreen {session} />
     {:else if activeSection === 'Site Settings'}
       <SiteSettingsScreen {session} />
+    {:else if activeSection === 'Publish'}
+      <PublishScreen {session} />
     {/if}
   </main>
 </div>

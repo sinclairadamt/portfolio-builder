@@ -94,13 +94,19 @@ export class FsaProjectStore {
 
   async readAssetUrl(storedFilename) {
     if (this.#assetUrlCache.has(storedFilename)) return this.#assetUrlCache.get(storedFilename)
-    this.#assertConnected()
-    const assetsDir = await this.#dirHandle.getDirectoryHandle(ASSETS_DIRNAME, { create: true })
-    const fileHandle = await assetsDir.getFileHandle(storedFilename)
-    const file = await fileHandle.getFile()
+    const file = await this.readAssetBlob(storedFilename)
     const url = URL.createObjectURL(file)
     this.#assetUrlCache.set(storedFilename, url)
     return url
+  }
+
+  // Raw bytes, for copying assets into a site export (as opposed to
+  // readAssetUrl's blob: URL, meant for display in the editor/preview).
+  async readAssetBlob(storedFilename) {
+    this.#assertConnected()
+    const assetsDir = await this.#dirHandle.getDirectoryHandle(ASSETS_DIRNAME, { create: true })
+    const fileHandle = await assetsDir.getFileHandle(storedFilename)
+    return fileHandle.getFile()
   }
 
   async deleteAsset(storedFilename) {

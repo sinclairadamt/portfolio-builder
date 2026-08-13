@@ -61,11 +61,18 @@ export class ZipProjectStore {
 
   async readAssetUrl(storedFilename) {
     if (this.#assetUrlCache.has(storedFilename)) return this.#assetUrlCache.get(storedFilename)
-    const blob = this.#assets.get(storedFilename)
-    if (!blob) throw new Error(`Asset not found: ${storedFilename}`)
+    const blob = await this.readAssetBlob(storedFilename)
     const url = URL.createObjectURL(blob)
     this.#assetUrlCache.set(storedFilename, url)
     return url
+  }
+
+  // Raw bytes, for copying assets into a site export (as opposed to
+  // readAssetUrl's blob: URL, meant for display in the editor/preview).
+  async readAssetBlob(storedFilename) {
+    const blob = this.#assets.get(storedFilename)
+    if (!blob) throw new Error(`Asset not found: ${storedFilename}`)
+    return blob
   }
 
   async deleteAsset(storedFilename) {
