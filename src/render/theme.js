@@ -84,6 +84,7 @@ img { max-width: 100%; display: block; }
   padding: 1rem 1.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
+.site-brand { display: flex; flex-direction: column; gap: 0.15rem; }
 .site-title {
   display: flex;
   align-items: center;
@@ -94,6 +95,7 @@ img { max-width: 100%; display: block; }
   text-decoration: none;
   color: var(--color-text);
 }
+.site-tagline { margin: 0; font-size: 0.9rem; font-weight: 400; opacity: 0.7; }
 .site-logo { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
 .site-nav { display: flex; gap: 1.25rem; }
 .site-nav a { text-decoration: none; color: var(--color-text); font-weight: 500; }

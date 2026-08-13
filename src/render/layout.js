@@ -55,7 +55,10 @@ ${renderThemeStyleTag(siteSettings)}
 </head>
 <body>
 <header class="site-header">
-  <a class="site-title" href="${homeHref}"${homeDataPage}>${logoSrc ? `<img class="site-logo" src="${escapeHtml(logoSrc)}" alt="">` : ''}${escapeHtml(siteTitle)}</a>
+  <div class="site-brand">
+    <a class="site-title" href="${homeHref}"${homeDataPage}>${logoSrc ? `<img class="site-logo" src="${escapeHtml(logoSrc)}" alt="">` : ''}${escapeHtml(siteTitle)}</a>
+    ${siteSettings.tagline ? `<p class="site-tagline">${escapeHtml(siteSettings.tagline)}</p>` : ''}
+  </div>
   <nav class="site-nav">${nav}</nav>
 </header>
 <main>${bodyHtml}</main>
