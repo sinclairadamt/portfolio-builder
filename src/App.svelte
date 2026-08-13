@@ -1,6 +1,8 @@
 <script>
   // No client-side router: GitHub Pages doesn't rewrite unknown paths to index.html,
   // so navigation is plain in-memory view state, not URL routes.
+  import ProjectConnectionPanel from './lib/ProjectConnectionPanel.svelte'
+
   const sections = ['About', 'Contact', 'Portfolio', 'Site Settings']
   let activeSection = $state('Portfolio')
 </script>
@@ -22,6 +24,7 @@
 
   <main>
     <p>Editor scaffold is live. {activeSection} screen goes here.</p>
+    <ProjectConnectionPanel />
   </main>
 </div>
 
