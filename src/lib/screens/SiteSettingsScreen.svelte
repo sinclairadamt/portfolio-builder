@@ -1,59 +1,20 @@
 <script>
-  import { untrack } from 'svelte'
   import { FONT_PAIRS } from '../../render/theme.js'
   import { ingestImageAsset, removeAsset } from '../../media/assetRegistry.js'
   import MediaThumb from '../MediaThumb.svelte'
+  import ColorPickerField from '../ColorPickerField.svelte'
   import PreviewPane from '../PreviewPane.svelte'
-
-  const HEX_COLOR_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
 
   let { session } = $props()
   const settings = $derived(session.project.siteSettings)
-
-  // Local, freely-typeable copies of the hex fields -- can't bind these
-  // directly to settings.colorPalette.* or every keystroke of an
-  // incomplete/invalid hex code would get overwritten back to the last valid
-  // value. Only a valid hex code gets committed back to the project.
-  let primaryHexInput = $state(untrack(() => settings.colorPalette.primary))
-  let secondaryHexInput = $state(untrack(() => settings.colorPalette.secondary))
-
-  $effect(() => {
-    primaryHexInput = settings.colorPalette.primary
-  })
-  $effect(() => {
-    secondaryHexInput = settings.colorPalette.secondary
-  })
 
   function update() {
     session.scheduleSave()
   }
 
-  function onPrimaryColorPicked(e) {
-    settings.colorPalette.primary = e.target.value
-    primaryHexInput = e.target.value
+  function setColor(key, value) {
+    settings.colorPalette[key] = value
     update()
-  }
-
-  function onPrimaryHexTyped(e) {
-    primaryHexInput = e.target.value
-    if (HEX_COLOR_RE.test(primaryHexInput)) {
-      settings.colorPalette.primary = primaryHexInput
-      update()
-    }
-  }
-
-  function onSecondaryColorPicked(e) {
-    settings.colorPalette.secondary = e.target.value
-    secondaryHexInput = e.target.value
-    update()
-  }
-
-  function onSecondaryHexTyped(e) {
-    secondaryHexInput = e.target.value
-    if (HEX_COLOR_RE.test(secondaryHexInput)) {
-      settings.colorPalette.secondary = secondaryHexInput
-      update()
-    }
   }
 
   async function onLogoChange(event) {
@@ -100,22 +61,36 @@
     {/if}
     <input id="logo" type="file" accept="image/*" onchange={onLogoChange} />
 
-    <label for="primary-color">Link &amp; Button Color</label>
-    <div class="color-input-row">
-      <input id="primary-color" type="color" value={settings.colorPalette.primary} oninput={onPrimaryColorPicked} />
-      <input class="hex-input" value={primaryHexInput} oninput={onPrimaryHexTyped} />
-    </div>
-
-    <label for="secondary-color">Accent Line Color</label>
-    <div class="color-input-row">
-      <input
-        id="secondary-color"
-        type="color"
-        value={settings.colorPalette.secondary}
-        oninput={onSecondaryColorPicked}
-      />
-      <input class="hex-input" value={secondaryHexInput} oninput={onSecondaryHexTyped} />
-    </div>
+    <ColorPickerField
+      label="Background Color"
+      id="background-color"
+      value={settings.colorPalette.background}
+      onChange={(v) => setColor('background', v)}
+    />
+    <ColorPickerField
+      label="Text Color"
+      id="text-color"
+      value={settings.colorPalette.text}
+      onChange={(v) => setColor('text', v)}
+    />
+    <ColorPickerField
+      label="Link &amp; Button Color"
+      id="primary-color"
+      value={settings.colorPalette.primary}
+      onChange={(v) => setColor('primary', v)}
+    />
+    <ColorPickerField
+      label="Link Hover Color"
+      id="link-hover-color"
+      value={settings.colorPalette.linkHover}
+      onChange={(v) => setColor('linkHover', v)}
+    />
+    <ColorPickerField
+      label="Accent Line Color"
+      id="secondary-color"
+      value={settings.colorPalette.secondary}
+      onChange={(v) => setColor('secondary', v)}
+    />
 
     <label for="font-pair">Fonts</label>
     <select
@@ -160,21 +135,5 @@
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 6px;
-  }
-
-  .color-input-row {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  input[type='color'] {
-    padding: 0.2rem;
-    width: 48px;
-    height: 40px;
-  }
-
-  .hex-input {
-    width: 120px;
   }
 </style>

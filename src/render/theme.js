@@ -40,6 +40,7 @@ export function renderThemeStyleTag(siteSettings) {
   return `<style>
 :root {
   --color-primary: ${palette.primary};
+  --color-primary-hover: ${palette.linkHover};
   --color-secondary: ${palette.secondary};
   --color-bg: ${palette.background};
   --color-text: ${palette.text};
@@ -64,6 +65,7 @@ body {
 }
 h1, h2, h3 { font-family: var(--font-heading); line-height: 1.25; }
 a { color: var(--color-primary); }
+a:hover { color: var(--color-primary-hover); }
 img { max-width: 100%; display: block; }
 
 .site-header {
@@ -88,6 +90,7 @@ img { max-width: 100%; display: block; }
 .site-logo { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
 .site-nav { display: flex; gap: 1.25rem; }
 .site-nav a { text-decoration: none; color: var(--color-text); font-weight: 500; }
+.site-nav a:hover { color: var(--color-primary-hover); }
 .site-nav a[aria-current="page"] { color: var(--color-primary); }
 
 main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }

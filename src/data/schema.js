@@ -13,6 +13,7 @@ export function createEmptyProject() {
       logoAssetId: null,
       colorPalette: {
         primary: '#0B5FFF',
+        linkHover: '#0842B0',
         secondary: '#00B3A4',
         background: '#FFFFFF',
         text: '#1A1A1A',
