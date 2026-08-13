@@ -1,14 +1,26 @@
 <script>
-  // Temporary test harness for the Phase 2 persistence layer -- exercises
-  // folder mode, ZIP mode, autosave, and reconnect. Gets replaced by the real
-  // editor screens in Phase 5.
+  // Temporary test harness for the persistence + image pipeline layers --
+  // exercises folder mode, ZIP mode, autosave, reconnect, and image ingest.
+  // Gets replaced by the real editor screens in Phase 5.
   import { ProjectSession } from '../storage/projectSession.svelte.js'
+  import { ingestImageAsset } from '../media/assetRegistry.js'
 
   let session = $state(new ProjectSession())
   let zipFileInput = $state(null)
   let busyMessage = $state('')
+  let photoUrl = $state('')
 
   session.restore()
+
+  $effect(() => {
+    const assetId = session.project?.about?.photoAssetId
+    if (!assetId || !session.store) {
+      photoUrl = ''
+      return
+    }
+    const entry = session.project.assets[assetId]
+    session.store.readAssetUrl(entry.storedFilename).then((url) => (photoUrl = url))
+  })
 
   async function run(label, fn) {
     busyMessage = label
@@ -44,6 +56,17 @@
       a.click()
       URL.revokeObjectURL(url)
     })
+  }
+
+  async function onPhotoChange(event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    await run('Processing photo...', async () => {
+      const assetId = await ingestImageAsset(session.store, session.project, file)
+      session.project.about.photoAssetId = assetId
+      session.scheduleSave()
+    })
+    event.target.value = ''
   }
 </script>
 
@@ -96,6 +119,20 @@
       <label for="bio">Bio (proves round-trip save/load)</label>
       <textarea id="bio" value={session.project.about.bio} oninput={onBioInput} rows="4"
       ></textarea>
+
+      <label for="photo">About photo (proves image resize/compress + asset registry)</label>
+      <input id="photo" type="file" accept="image/*" onchange={onPhotoChange} />
+      {#if photoUrl}
+        <img class="photo-preview" src={photoUrl} alt="About preview" />
+        {#if session.project.about.photoAssetId}
+          {@const asset = session.project.assets[session.project.about.photoAssetId]}
+          <p class="asset-info">
+            {asset.originalFilename} &rarr; {asset.width}&times;{asset.height},
+            {(asset.sizeBytes / 1024).toFixed(0)}KB ({asset.mimeType})
+          </p>
+        {/if}
+      {/if}
+
       <p class="save-status">
         {session.connectionName} &middot; {session.store?.mode} mode &middot; {session.saveStatus}
       </p>
@@ -153,6 +190,16 @@
 
   .save-status {
     font-size: 0.85rem;
+    color: #666;
+  }
+
+  .photo-preview {
+    max-width: 200px;
+    border-radius: 6px;
+  }
+
+  .asset-info {
+    font-size: 0.8rem;
     color: #666;
   }
 
