@@ -1,10 +1,18 @@
 <script>
   // No client-side router: GitHub Pages doesn't rewrite unknown paths to index.html,
   // so navigation is plain in-memory view state, not URL routes.
-  import ProjectConnectionPanel from './lib/ProjectConnectionPanel.svelte'
+  import { ProjectSession } from './storage/projectSession.svelte.js'
+  import ConnectionBar from './lib/ConnectionBar.svelte'
+  import AboutScreen from './lib/screens/AboutScreen.svelte'
+  import ContactScreen from './lib/screens/ContactScreen.svelte'
+  import PortfolioScreen from './lib/screens/PortfolioScreen.svelte'
+  import SiteSettingsScreen from './lib/screens/SiteSettingsScreen.svelte'
 
-  const sections = ['About', 'Contact', 'Portfolio', 'Site Settings']
+  const sections = ['Portfolio', 'About', 'Contact', 'Site Settings']
   let activeSection = $state('Portfolio')
+  let session = $state(new ProjectSession())
+
+  session.restore()
 </script>
 
 <div class="app-shell">
@@ -12,10 +20,7 @@
     <h1>Portfolio Builder</h1>
     <nav>
       {#each sections as section}
-        <button
-          class:active={activeSection === section}
-          onclick={() => (activeSection = section)}
-        >
+        <button class:active={activeSection === section} onclick={() => (activeSection = section)}>
           {section}
         </button>
       {/each}
@@ -23,15 +28,29 @@
   </header>
 
   <main>
-    <p>Editor scaffold is live. {activeSection} screen goes here.</p>
-    <ProjectConnectionPanel />
+    <ConnectionBar {session} />
+
+    {#if !session.project}
+      <p class="empty-state">
+        Choose a project folder or start/import a ZIP project above to begin editing.
+      </p>
+    {:else if activeSection === 'About'}
+      <AboutScreen {session} />
+    {:else if activeSection === 'Contact'}
+      <ContactScreen {session} />
+    {:else if activeSection === 'Portfolio'}
+      <PortfolioScreen {session} />
+    {:else if activeSection === 'Site Settings'}
+      <SiteSettingsScreen {session} />
+    {/if}
   </main>
 </div>
 
 <style>
   .app-shell {
-    max-width: 960px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 1.5rem;
   }
 
   header {
@@ -63,6 +82,10 @@
   }
 
   main {
-    padding: 2rem 0;
+    padding: 1.5rem 0 3rem;
+  }
+
+  .empty-state {
+    opacity: 0.7;
   }
 </style>

@@ -73,6 +73,11 @@ export class ProjectSession {
 
   async exportZip() {
     if (!(this.store instanceof ZipProjectStore)) throw new Error('Not in ZIP mode')
+    // Force a flush first -- exportZip() reads the store's own copy of the
+    // project, which only syncs with the live (edited) object when the
+    // debounced autosave fires. Without this, rapid edits followed by an
+    // immediate export could silently ship stale data.
+    await this.saveNow()
     return this.store.exportZip()
   }
 
