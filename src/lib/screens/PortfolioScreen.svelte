@@ -14,12 +14,22 @@
   let selectedProjectId = $state(
     untrack(() => portfolio.categories[0]?.projects[0]?.id ?? null)
   )
+  // Which single panel is showing -- independent of selection, so drilling
+  // into a project and stepping back up via the breadcrumb doesn't lose
+  // which category/project was selected.
+  let view = $state('categories') // 'categories' | 'projects' | 'details'
 
   const selectedCategory = $derived(
     portfolio.categories.find((category) => category.id === selectedCategoryId) ?? null
   )
   const selectedProject = $derived(
     selectedCategory?.projects.find((proj) => proj.id === selectedProjectId) ?? null
+  )
+  // Clamps `view` against what's actually selected -- e.g. if the selected
+  // project got deleted elsewhere, falls back to the projects list instead
+  // of showing a blank details panel.
+  const effectiveView = $derived(
+    view === 'details' && selectedProject ? 'details' : view === 'projects' && selectedCategory ? 'projects' : 'categories'
   )
 
   function update() {
@@ -31,6 +41,8 @@
     portfolio.categories.push(category)
     selectedCategoryId = category.id
     selectedProjectId = null
+    // Stays on the categories panel (not auto-drilling into it) so its name
+    // field is immediately visible to rename -- "Open" is what drills in.
     update()
   }
 
@@ -41,6 +53,7 @@
     if (selectedCategoryId === id) {
       selectedCategoryId = portfolio.categories[0]?.id ?? null
       selectedProjectId = null
+      view = 'categories'
     }
     update()
   }
@@ -53,9 +66,10 @@
     update()
   }
 
-  function selectCategory(id) {
+  function openCategory(id) {
     selectedCategoryId = id
     selectedProjectId = null
+    view = 'projects'
   }
 
   function addProject() {
@@ -63,6 +77,8 @@
     const proj = createProject('New Project')
     selectedCategory.projects.push(proj)
     selectedProjectId = proj.id
+    // Stays on the projects panel so its title field is immediately visible
+    // to rename -- "Open" is what drills into the details/media panel.
     update()
   }
 
@@ -74,7 +90,10 @@
     for (const media of removed.media) {
       if (media.type === 'image') await removeAsset(session.store, session.project, media.assetId)
     }
-    if (selectedProjectId === id) selectedProjectId = null
+    if (selectedProjectId === id) {
+      selectedProjectId = null
+      view = 'projects'
+    }
     update()
   }
 
@@ -85,6 +104,11 @@
     const [item] = selectedCategory.projects.splice(index, 1)
     selectedCategory.projects.splice(target, 0, item)
     update()
+  }
+
+  function openProject(id) {
+    selectedProjectId = id
+    view = 'details'
   }
 
   async function onAddImages(event) {
@@ -134,8 +158,24 @@
 </script>
 
 <div class="portfolio-screen">
-  <div class="columns">
-    <div class="column">
+  <nav class="breadcrumb" aria-label="Portfolio editor breadcrumb">
+    {#if effectiveView === 'categories'}
+      <span class="crumb current">Categories</span>
+    {:else if effectiveView === 'projects'}
+      <button class="crumb" onclick={() => (view = 'categories')}>Categories</button>
+      <span class="crumb-sep">/</span>
+      <span class="crumb current">{selectedCategory.name}</span>
+    {:else}
+      <button class="crumb" onclick={() => (view = 'categories')}>Categories</button>
+      <span class="crumb-sep">/</span>
+      <button class="crumb" onclick={() => (view = 'projects')}>{selectedCategory.name}</button>
+      <span class="crumb-sep">/</span>
+      <span class="crumb current">{selectedProject.title}</span>
+    {/if}
+  </nav>
+
+  {#if effectiveView === 'categories'}
+    <div class="panel">
       <h3>Categories</h3>
       {#each portfolio.categories as category, index (category.id)}
         <div class="list-row">
@@ -143,12 +183,13 @@
             class="row-name"
             class:selected={category.id === selectedCategoryId}
             value={category.name}
-            onfocus={() => selectCategory(category.id)}
+            onfocus={() => (selectedCategoryId = category.id)}
             oninput={(e) => {
               category.name = e.target.value
               update()
             }}
           />
+          <button onclick={() => openCategory(category.id)}>Open &rarr;</button>
           <button onclick={() => moveCategory(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
           <button
             onclick={() => moveCategory(index, 1)}
@@ -162,117 +203,114 @@
       {/each}
       <button onclick={addCategory}>+ Add Category</button>
     </div>
+  {:else if effectiveView === 'projects'}
+    <div class="panel">
+      <h3>Projects in "{selectedCategory.name}"</h3>
+      {#each selectedCategory.projects as proj, index (proj.id)}
+        <div class="list-row">
+          <input
+            class="row-name"
+            class:selected={proj.id === selectedProjectId}
+            value={proj.title}
+            onfocus={() => (selectedProjectId = proj.id)}
+            oninput={(e) => {
+              proj.title = e.target.value
+              update()
+            }}
+          />
+          <button onclick={() => openProject(proj.id)}>Open &rarr;</button>
+          <button onclick={() => moveProject(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
+          <button
+            onclick={() => moveProject(index, 1)}
+            disabled={index === selectedCategory.projects.length - 1}
+            aria-label="Move down"
+          >
+            &darr;
+          </button>
+          <button onclick={() => removeProject(proj.id)} aria-label="Remove project">&times;</button>
+        </div>
+      {/each}
+      <button onclick={addProject}>+ Add Project</button>
+    </div>
+  {:else}
+    <div class="panel">
+      <h3>Project Details</h3>
+      <label for="proj-desc">Description</label>
+      <textarea
+        id="proj-desc"
+        rows="4"
+        value={selectedProject.description}
+        oninput={(e) => {
+          selectedProject.description = e.target.value
+          update()
+        }}
+      ></textarea>
 
-    {#if selectedCategory}
-      <div class="column">
-        <h3>Projects in "{selectedCategory.name}"</h3>
-        {#each selectedCategory.projects as proj, index (proj.id)}
-          <div class="list-row">
-            <input
-              class="row-name"
-              class:selected={proj.id === selectedProjectId}
-              value={proj.title}
-              onfocus={() => (selectedProjectId = proj.id)}
-              oninput={(e) => {
-                proj.title = e.target.value
-                update()
-              }}
-            />
-            <button onclick={() => moveProject(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
+      <h4>Media</h4>
+      {#each selectedProject.media as media, index (media.id)}
+        <div class="media-row">
+          {#if media.type === 'image'}
+            <MediaThumb {session} assetId={media.assetId} />
+            <div class="media-fields">
+              <label>
+                Caption
+                <input
+                  value={media.caption}
+                  oninput={(e) => {
+                    media.caption = e.target.value
+                    update()
+                  }}
+                />
+              </label>
+              <label>
+                Alt text (required)
+                <input
+                  value={media.altText}
+                  oninput={(e) => {
+                    media.altText = e.target.value
+                    update()
+                  }}
+                />
+              </label>
+            </div>
+          {:else}
+            <div class="media-fields">
+              <span class="youtube-label">YouTube: {media.youtubeId}</span>
+              <label>
+                Caption
+                <input
+                  value={media.caption}
+                  oninput={(e) => {
+                    media.caption = e.target.value
+                    update()
+                  }}
+                />
+              </label>
+            </div>
+          {/if}
+          <div class="media-row-actions">
+            <button onclick={() => moveMedia(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
             <button
-              onclick={() => moveProject(index, 1)}
-              disabled={index === selectedCategory.projects.length - 1}
+              onclick={() => moveMedia(index, 1)}
+              disabled={index === selectedProject.media.length - 1}
               aria-label="Move down"
             >
               &darr;
             </button>
-            <button onclick={() => removeProject(proj.id)} aria-label="Remove project">&times;</button>
+            <button onclick={() => removeMedia(index)} aria-label="Remove media">&times;</button>
           </div>
-        {/each}
-        <button onclick={addProject}>+ Add Project</button>
-      </div>
-    {/if}
-
-    {#if selectedProject}
-      <div class="column project-detail">
-        <h3>Project Details</h3>
-        <label for="proj-desc">Description</label>
-        <textarea
-          id="proj-desc"
-          rows="4"
-          value={selectedProject.description}
-          oninput={(e) => {
-            selectedProject.description = e.target.value
-            update()
-          }}
-        ></textarea>
-
-        <h4>Media</h4>
-        {#each selectedProject.media as media, index (media.id)}
-          <div class="media-row">
-            {#if media.type === 'image'}
-              <MediaThumb {session} assetId={media.assetId} />
-              <div class="media-fields">
-                <label>
-                  Caption
-                  <input
-                    value={media.caption}
-                    oninput={(e) => {
-                      media.caption = e.target.value
-                      update()
-                    }}
-                  />
-                </label>
-                <label>
-                  Alt text (required)
-                  <input
-                    value={media.altText}
-                    oninput={(e) => {
-                      media.altText = e.target.value
-                      update()
-                    }}
-                  />
-                </label>
-              </div>
-            {:else}
-              <div class="media-fields">
-                <span class="youtube-label">YouTube: {media.youtubeId}</span>
-                <label>
-                  Caption
-                  <input
-                    value={media.caption}
-                    oninput={(e) => {
-                      media.caption = e.target.value
-                      update()
-                    }}
-                  />
-                </label>
-              </div>
-            {/if}
-            <div class="media-row-actions">
-              <button onclick={() => moveMedia(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
-              <button
-                onclick={() => moveMedia(index, 1)}
-                disabled={index === selectedProject.media.length - 1}
-                aria-label="Move down"
-              >
-                &darr;
-              </button>
-              <button onclick={() => removeMedia(index)} aria-label="Remove media">&times;</button>
-            </div>
-          </div>
-        {/each}
-
-        <div class="add-media-actions">
-          <label class="file-button">
-            + Add Images
-            <input type="file" accept="image/*" multiple onchange={onAddImages} hidden />
-          </label>
-          <button onclick={addYoutube}>+ Add YouTube Video</button>
         </div>
+      {/each}
+
+      <div class="add-media-actions">
+        <label class="file-button">
+          + Add Images
+          <input type="file" accept="image/*" multiple onchange={onAddImages} hidden />
+        </label>
+        <button onclick={addYoutube}>+ Add YouTube Video</button>
       </div>
-    {/if}
-  </div>
+    </div>
+  {/if}
 
   <PreviewPane {session} pageKey="home" />
 </div>
@@ -284,31 +322,45 @@
     gap: 1.5rem;
   }
 
-  .columns {
+  .breadcrumb {
     display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
   }
 
-  .column {
-    min-width: 240px;
-    flex: 1;
+  .crumb {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--color-primary, #0b5fff);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .crumb.current {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: default;
+  }
+
+  .crumb-sep {
+    opacity: 0.5;
+  }
+
+  .panel {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-  }
-
-  .project-detail {
-    flex: 2;
-    min-width: 320px;
+    max-width: 600px;
   }
 
   .list-row {
     display: flex;
     gap: 0.3rem;
     align-items: center;
-    /* Without this, a flex row can overflow its column's bounds and visually
-       bleed into the next column instead of shrinking or wrapping. */
     min-width: 0;
     flex-wrap: wrap;
   }
