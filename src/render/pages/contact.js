@@ -1,7 +1,12 @@
 import { escapeHtml } from '../escapeHtml.js'
 import { renderSocialIcon } from '../socialIcons.js'
 
-const SOCIAL_LABELS = { linkedin: 'LinkedIn', instagram: 'Instagram' }
+const SOCIAL_LABELS = {
+  linkedin: 'LinkedIn',
+  instagram: 'Instagram',
+  behance: 'Behance',
+  deviantart: 'DeviantArt',
+}
 
 // GitHub Pages can't run a server-side form handler, so the form posts to
 // FormSubmit.co (free, no signup -- just a one-time email-activation click
