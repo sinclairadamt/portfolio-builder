@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 export function createId(prefix) {
   return `${prefix}_${crypto.randomUUID().replace(/-/g, '').slice(0, 12)}`
@@ -20,6 +20,7 @@ export function createEmptyProject() {
       },
       fontPairId: 'poppins-inter',
       navStyle: 'top',
+      galleryColumns: 3,
     },
     about: {
       photoAssetId: null,
@@ -32,7 +33,7 @@ export function createEmptyProject() {
       socialLinks: [],
     },
     portfolio: {
-      categories: [],
+      projects: [],
     },
     resume: {
       assetId: null,
@@ -46,13 +47,19 @@ export function createEmptyProject() {
 export function migrateProject(rawProject) {
   if (!rawProject || typeof rawProject !== 'object') return createEmptyProject()
   const project = rawProject
+  // v1 -> v2: categories were dropped in favor of a flat gallery. Pull every
+  // project out of its category into one list rather than losing them.
+  if (project.schemaVersion < 2 && project.portfolio?.categories) {
+    project.portfolio = {
+      projects: project.portfolio.categories.flatMap((category) => category.projects ?? []),
+    }
+  }
+  if (project.schemaVersion < 2 && project.siteSettings && project.siteSettings.galleryColumns == null) {
+    project.siteSettings.galleryColumns = 3
+  }
   if (project.schemaVersion === SCHEMA_VERSION) return project
   project.schemaVersion = SCHEMA_VERSION
   return project
-}
-
-export function createCategory(name = 'New Category') {
-  return { id: createId('cat'), name, projects: [] }
 }
 
 export function createProject(title = 'New Project') {

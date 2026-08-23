@@ -46,6 +46,7 @@ export function renderThemeStyleTag(siteSettings) {
   --color-text: ${palette.text};
   --font-heading: ${pair.headingFamily};
   --font-body: ${pair.bodyFamily};
+  --gallery-columns: ${siteSettings.galleryColumns || 3};
 }
 ${BASE_CSS}
 </style>`
@@ -95,16 +96,39 @@ img { max-width: 100%; display: block; }
 
 main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
-.category { margin-bottom: 3rem; }
-.category h2 {
-  font-size: 1.5rem;
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(var(--gallery-columns), 1fr);
+  gap: 1.75rem;
+}
+.gallery-item { display: block; text-decoration: none; color: inherit; }
+.gallery-thumb {
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.05);
+}
+.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-thumb-placeholder { width: 100%; height: 100%; }
+.gallery-caption { margin: 0.6rem 0 0; font-weight: 500; }
+
+.project-detail { max-width: 800px; margin: 0 auto; }
+.project-detail h2 {
+  font-size: 1.75rem;
   border-bottom: 2px solid var(--color-secondary);
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
 }
-.project { margin-bottom: 2.5rem; }
-.project h3 { font-size: 1.2rem; margin: 0 0 0.5rem; }
-.project-description { margin: 0 0 1rem; opacity: 0.8; }
+.project-description { margin: 0 0 1.5rem; opacity: 0.8; }
+.project-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-weight: 500;
+}
 
 .media-grid {
   display: grid;
@@ -216,5 +240,8 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; }
   main { padding: 1.5rem 1rem 3rem; }
   .contact { grid-template-columns: 1fr; }
   .about-photo { width: 160px; height: 160px; }
+  /* Ignore the chosen column count on phones -- 4-5 columns from a desktop
+     setting would cram the gallery unreadably small. */
+  .gallery { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 }
 `

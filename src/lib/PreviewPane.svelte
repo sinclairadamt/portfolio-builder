@@ -6,12 +6,14 @@
   let { session, pageKey, minHeight = '500px' } = $props()
   let html = $state('')
   let currentPageKey = $state(untrack(() => pageKey))
+  let currentProjectId = $state(null)
   let requestToken = 0
 
   // Reset to the screen's own default page whenever the pageKey prop changes
   // (e.g. this component remounts fresh when switching editor tabs).
   $effect(() => {
     currentPageKey = pageKey
+    currentProjectId = null
   })
 
   // The preview has no real file tree behind it (it's one iframe showing one
@@ -22,11 +24,18 @@
     function handleMessage(event) {
       if (event.data?.source === 'portfolio-builder-preview') {
         currentPageKey = event.data.pageKey
+        currentProjectId = event.data.projectId ?? null
       }
     }
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
   })
+
+  const previewLabel = $derived(
+    currentPageKey === 'project'
+      ? (session.project.portfolio.projects.find((p) => p.id === currentProjectId)?.title ?? 'project')
+      : currentPageKey
+  )
 
   $effect(() => {
     // JSON round-tripping the project synchronously (inside the tracked
@@ -36,20 +45,23 @@
     const snapshot = JSON.parse(JSON.stringify(session.project))
     const store = session.store
     const key = currentPageKey
+    const projectId = currentProjectId
     const token = ++requestToken
     if (!store) return
 
     ;(async () => {
       const resolveAsset = await buildPreviewAssetResolver(store, snapshot)
       const pages = renderSitePages(snapshot, { makeResolver: () => resolveAsset, isPreview: true })
-      // Guards against a slower, now-stale render overwriting a newer one.
-      if (token === requestToken) html = pages[key]
+      // Falls back to the gallery if the previewed project no longer exists
+      // (e.g. deleted in the editor while its page happened to be open here).
+      const nextHtml = key === 'project' ? pages.projects[projectId] ?? pages.home : pages[key]
+      if (token === requestToken) html = nextHtml
     })()
   })
 </script>
 
 <div class="preview-pane">
-  <p class="preview-label">Live Preview — {currentPageKey}</p>
+  <p class="preview-label">Live Preview — {previewLabel}</p>
   <iframe title="Site preview" srcdoc={html} style="min-height: {minHeight}"></iframe>
 </div>
 

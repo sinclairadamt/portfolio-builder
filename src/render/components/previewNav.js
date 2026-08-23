@@ -8,7 +8,11 @@ export const previewNavScript = `(function () {
   document.querySelectorAll('[data-page]').forEach(function (el) {
     el.addEventListener('click', function (e) {
       e.preventDefault();
-      window.parent.postMessage({ source: 'portfolio-builder-preview', pageKey: el.getAttribute('data-page') }, '*');
+      window.parent.postMessage({
+        source: 'portfolio-builder-preview',
+        pageKey: el.getAttribute('data-page'),
+        projectId: el.getAttribute('data-project-id') || undefined,
+      }, '*');
     });
   });
 })();`

@@ -2,6 +2,7 @@ import JSZip from 'jszip'
 import { renderSitePages } from '../render/renderSite.js'
 import { renderPage } from '../render/layout.js'
 import { renderNotFoundPage } from '../render/pages/notFound.js'
+import { projectSlug } from '../render/paths.js'
 import { renderSitemapXml, renderRobotsTxt } from './seo.js'
 
 // Assembles the full deployable static site as a Map<relativePath, string|Blob>.
@@ -17,6 +18,9 @@ export async function buildSiteFiles(project, store) {
   files.set('index.html', pages.home)
   files.set('about/index.html', pages.about)
   files.set('contact/index.html', pages.contact)
+  for (const [projectId, html] of Object.entries(pages.projects)) {
+    files.set(`${projectSlug(projectId)}/index.html`, html)
+  }
   files.set(
     '404.html',
     renderPage({ pageKey: 'home', project, resolveAsset: () => '', bodyHtml: renderNotFoundPage(project) })

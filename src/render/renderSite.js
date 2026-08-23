@@ -2,6 +2,7 @@ import { renderPage } from './layout.js'
 import { renderHomePage } from './pages/home.js'
 import { renderAboutPage } from './pages/about.js'
 import { renderContactPage } from './pages/contact.js'
+import { renderProjectPage } from './pages/project.js'
 import { makeExportAssetResolver, pathPrefixFor } from './paths.js'
 
 // The single seam that keeps live preview and static export from drifting
@@ -15,13 +16,27 @@ export function renderSitePages(project, { makeResolver, isPreview = false } = {
   const homeResolve = resolverFactory(pathPrefixFor('home'))
   const aboutResolve = resolverFactory(pathPrefixFor('about'))
   const contactResolve = resolverFactory(pathPrefixFor('contact'))
+  // Every project page lives at the same depth, so one resolver covers all of them.
+  const projectResolve = resolverFactory(pathPrefixFor('project'))
+
+  const projectPages = {}
+  for (const proj of project.portfolio.projects) {
+    projectPages[proj.id] = renderPage({
+      pageKey: 'project',
+      project,
+      resolveAsset: projectResolve,
+      bodyHtml: renderProjectPage(project, proj.id, projectResolve, { isPreview }),
+      pageTitleOverride: proj.title,
+      isPreview,
+    })
+  }
 
   return {
     home: renderPage({
       pageKey: 'home',
       project,
       resolveAsset: homeResolve,
-      bodyHtml: renderHomePage(project, homeResolve),
+      bodyHtml: renderHomePage(project, homeResolve, { isPreview }),
       isPreview,
     }),
     about: renderPage({
@@ -38,5 +53,6 @@ export function renderSitePages(project, { makeResolver, isPreview = false } = {
       bodyHtml: renderContactPage(project),
       isPreview,
     }),
+    projects: projectPages,
   }
 }

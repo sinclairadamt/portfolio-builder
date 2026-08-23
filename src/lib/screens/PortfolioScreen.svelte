@@ -1,6 +1,6 @@
 <script>
   import { untrack } from 'svelte'
-  import { createCategory, createProject, createImageMedia, createYoutubeMedia } from '../../data/schema.js'
+  import { createProject, createImageMedia, createYoutubeMedia } from '../../data/schema.js'
   import { ingestImageAssets, removeAsset } from '../../media/assetRegistry.js'
   import MediaThumb from '../MediaThumb.svelte'
   import PreviewPane from '../PreviewPane.svelte'
@@ -10,72 +10,27 @@
 
   // One-time default selection on mount -- deliberately not reactive to
   // `portfolio` afterward, since selection is independent user-driven state.
-  let selectedCategoryId = $state(untrack(() => portfolio.categories[0]?.id ?? null))
-  let selectedProjectId = $state(
-    untrack(() => portfolio.categories[0]?.projects[0]?.id ?? null)
-  )
+  let selectedProjectId = $state(untrack(() => portfolio.projects[0]?.id ?? null))
   // Which single panel is showing -- independent of selection, so drilling
   // into a project and stepping back up via the breadcrumb doesn't lose
-  // which category/project was selected.
-  let view = $state('categories') // 'categories' | 'projects' | 'details'
+  // which project was selected.
+  let view = $state('projects') // 'projects' | 'details'
 
-  const selectedCategory = $derived(
-    portfolio.categories.find((category) => category.id === selectedCategoryId) ?? null
-  )
   const selectedProject = $derived(
-    selectedCategory?.projects.find((proj) => proj.id === selectedProjectId) ?? null
+    portfolio.projects.find((proj) => proj.id === selectedProjectId) ?? null
   )
   // Clamps `view` against what's actually selected -- e.g. if the selected
   // project got deleted elsewhere, falls back to the projects list instead
   // of showing a blank details panel.
-  const effectiveView = $derived(
-    view === 'details' && selectedProject ? 'details' : view === 'projects' && selectedCategory ? 'projects' : 'categories'
-  )
+  const effectiveView = $derived(view === 'details' && selectedProject ? 'details' : 'projects')
 
   function update() {
     session.scheduleSave()
   }
 
-  function addCategory() {
-    const category = createCategory('New Category')
-    portfolio.categories.push(category)
-    selectedCategoryId = category.id
-    selectedProjectId = null
-    // Stays on the categories panel (not auto-drilling into it) so its name
-    // field is immediately visible to rename -- "Open" is what drills in.
-    update()
-  }
-
-  function removeCategory(id) {
-    const index = portfolio.categories.findIndex((category) => category.id === id)
-    if (index === -1) return
-    portfolio.categories.splice(index, 1)
-    if (selectedCategoryId === id) {
-      selectedCategoryId = portfolio.categories[0]?.id ?? null
-      selectedProjectId = null
-      view = 'categories'
-    }
-    update()
-  }
-
-  function moveCategory(index, delta) {
-    const target = index + delta
-    if (target < 0 || target >= portfolio.categories.length) return
-    const [item] = portfolio.categories.splice(index, 1)
-    portfolio.categories.splice(target, 0, item)
-    update()
-  }
-
-  function openCategory(id) {
-    selectedCategoryId = id
-    selectedProjectId = null
-    view = 'projects'
-  }
-
   function addProject() {
-    if (!selectedCategory) return
     const proj = createProject('New Project')
-    selectedCategory.projects.push(proj)
+    portfolio.projects.push(proj)
     selectedProjectId = proj.id
     // Stays on the projects panel so its title field is immediately visible
     // to rename -- "Open" is what drills into the details/media panel.
@@ -83,26 +38,24 @@
   }
 
   async function removeProject(id) {
-    if (!selectedCategory) return
-    const index = selectedCategory.projects.findIndex((proj) => proj.id === id)
+    const index = portfolio.projects.findIndex((proj) => proj.id === id)
     if (index === -1) return
-    const [removed] = selectedCategory.projects.splice(index, 1)
+    const [removed] = portfolio.projects.splice(index, 1)
     for (const media of removed.media) {
       if (media.type === 'image') await removeAsset(session.store, session.project, media.assetId)
     }
     if (selectedProjectId === id) {
-      selectedProjectId = null
+      selectedProjectId = portfolio.projects[0]?.id ?? null
       view = 'projects'
     }
     update()
   }
 
   function moveProject(index, delta) {
-    if (!selectedCategory) return
     const target = index + delta
-    if (target < 0 || target >= selectedCategory.projects.length) return
-    const [item] = selectedCategory.projects.splice(index, 1)
-    selectedCategory.projects.splice(target, 0, item)
+    if (target < 0 || target >= portfolio.projects.length) return
+    const [item] = portfolio.projects.splice(index, 1)
+    portfolio.projects.splice(target, 0, item)
     update()
   }
 
@@ -159,54 +112,19 @@
 
 <div class="portfolio-screen">
   <nav class="breadcrumb" aria-label="Portfolio editor breadcrumb">
-    {#if effectiveView === 'categories'}
-      <span class="crumb current">Categories</span>
-    {:else if effectiveView === 'projects'}
-      <button class="crumb" onclick={() => (view = 'categories')}>Categories</button>
-      <span class="crumb-sep">/</span>
-      <span class="crumb current">{selectedCategory.name}</span>
+    {#if effectiveView === 'projects'}
+      <span class="crumb current">Projects</span>
     {:else}
-      <button class="crumb" onclick={() => (view = 'categories')}>Categories</button>
-      <span class="crumb-sep">/</span>
-      <button class="crumb" onclick={() => (view = 'projects')}>{selectedCategory.name}</button>
+      <button class="crumb" onclick={() => (view = 'projects')}>Projects</button>
       <span class="crumb-sep">/</span>
       <span class="crumb current">{selectedProject.title}</span>
     {/if}
   </nav>
 
-  {#if effectiveView === 'categories'}
+  {#if effectiveView === 'projects'}
     <div class="panel">
-      <h3>Categories</h3>
-      {#each portfolio.categories as category, index (category.id)}
-        <div class="list-row">
-          <input
-            class="row-name"
-            class:selected={category.id === selectedCategoryId}
-            value={category.name}
-            onfocus={() => (selectedCategoryId = category.id)}
-            oninput={(e) => {
-              category.name = e.target.value
-              update()
-            }}
-          />
-          <button onclick={() => openCategory(category.id)}>Open &rarr;</button>
-          <button onclick={() => moveCategory(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
-          <button
-            onclick={() => moveCategory(index, 1)}
-            disabled={index === portfolio.categories.length - 1}
-            aria-label="Move down"
-          >
-            &darr;
-          </button>
-          <button onclick={() => removeCategory(category.id)} aria-label="Remove category">&times;</button>
-        </div>
-      {/each}
-      <button onclick={addCategory}>+ Add Category</button>
-    </div>
-  {:else if effectiveView === 'projects'}
-    <div class="panel">
-      <h3>Projects in "{selectedCategory.name}"</h3>
-      {#each selectedCategory.projects as proj, index (proj.id)}
+      <h3>Projects</h3>
+      {#each portfolio.projects as proj, index (proj.id)}
         <div class="list-row">
           <input
             class="row-name"
@@ -222,7 +140,7 @@
           <button onclick={() => moveProject(index, -1)} disabled={index === 0} aria-label="Move up">&uarr;</button>
           <button
             onclick={() => moveProject(index, 1)}
-            disabled={index === selectedCategory.projects.length - 1}
+            disabled={index === portfolio.projects.length - 1}
             aria-label="Move down"
           >
             &darr;

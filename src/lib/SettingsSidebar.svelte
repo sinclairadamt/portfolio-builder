@@ -117,6 +117,21 @@
         onChange={(v) => setColor('secondary', v)}
       />
 
+      <label for="gallery-columns">Gallery Columns</label>
+      <input
+        id="gallery-columns"
+        type="number"
+        min="1"
+        max="6"
+        value={settings.galleryColumns}
+        oninput={(e) => {
+          const value = Number(e.target.value)
+          if (!Number.isInteger(value) || value < 1 || value > 6) return
+          settings.galleryColumns = value
+          update()
+        }}
+      />
+
       <label for="font-pair">Fonts</label>
       <select
         id="font-pair"

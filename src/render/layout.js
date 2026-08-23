@@ -5,19 +5,28 @@ import { previewNavScript } from './components/previewNav.js'
 import { PAGES, hrefTo } from './paths.js'
 
 function firstPortfolioImageAssetId(project) {
-  for (const category of project.portfolio.categories) {
-    for (const proj of category.projects) {
-      const image = proj.media.find((media) => media.type === 'image')
-      if (image) return image.assetId
-    }
+  for (const proj of project.portfolio.projects) {
+    const image = proj.media.find((media) => media.type === 'image')
+    if (image) return image.assetId
   }
   return null
 }
 
-export function renderPage({ pageKey, project, resolveAsset, bodyHtml, description, isPreview = false }) {
+// `pageTitleOverride` is needed for pageKey 'project', which isn't a fixed
+// PAGES entry -- its page title is the project's own title, not a nav label.
+export function renderPage({
+  pageKey,
+  project,
+  resolveAsset,
+  bodyHtml,
+  description,
+  pageTitleOverride,
+  isPreview = false,
+}) {
   const { siteSettings } = project
   const siteTitle = siteSettings.siteTitle || 'My Portfolio'
-  const pageTitle = pageKey === 'home' ? siteTitle : `${PAGES[pageKey].title} — ${siteTitle}`
+  const pageTitle =
+    pageKey === 'home' ? siteTitle : `${pageTitleOverride ?? PAGES[pageKey].title} — ${siteTitle}`
   const metaDescription = escapeHtml(description || '')
 
   const logoSrc = siteSettings.logoAssetId ? resolveAsset(siteSettings.logoAssetId) : ''
@@ -32,7 +41,10 @@ export function renderPage({ pageKey, project, resolveAsset, bodyHtml, descripti
   const homeDataPage = isPreview ? ' data-page="home"' : ''
   const nav = Object.keys(PAGES)
     .map((key) => {
-      const current = key === pageKey ? ' aria-current="page"' : ''
+      // A project's own page is conceptually part of the portfolio section,
+      // so the "Portfolio" nav link shows as current there too.
+      const isCurrent = key === pageKey || (pageKey === 'project' && key === 'home')
+      const current = isCurrent ? ' aria-current="page"' : ''
       const href = isPreview ? '#' : hrefTo(pageKey, key)
       const dataPage = isPreview ? ` data-page="${key}"` : ''
       return `<a href="${href}"${dataPage}${current}>${PAGES[key].title}</a>`
