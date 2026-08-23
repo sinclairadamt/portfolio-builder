@@ -173,7 +173,7 @@
         {/each}
       </select>
 
-      <label for="title-align">Title Align</label>
+      <label for="title-align">Title Justification</label>
       <select
         id="title-align"
         value={settings.titleAlign || 'left'}
@@ -186,7 +186,7 @@
         <option value="center">Center</option>
       </select>
 
-      <label for="description-align">Description Align</label>
+      <label for="description-align">Description Justification</label>
       <select
         id="description-align"
         value={settings.descriptionAlign || 'left'}
@@ -199,7 +199,7 @@
         <option value="center">Center</option>
       </select>
 
-      <label for="caption-align">Caption Align</label>
+      <label for="caption-align">Caption Justification</label>
       <select
         id="caption-align"
         value={settings.captionAlign || 'left'}
