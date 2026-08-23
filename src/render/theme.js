@@ -130,22 +130,25 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   font-weight: 500;
 }
 
+/* Project pages: each image/video fills the full content width, stacked
+   vertically when a project has more than one. */
 .media-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
-.media-item { margin: 0; }
+.media-item { margin: 0; width: 100%; }
 .media-image-button {
   padding: 0;
   border: none;
   background: none;
   cursor: pointer;
   width: 100%;
+  display: block;
   border-radius: 8px;
   overflow: hidden;
 }
-.media-image-button img { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; }
+.media-image-button img { width: 100%; height: auto; display: block; }
 figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; }
 
 .youtube-facade {
