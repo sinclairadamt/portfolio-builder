@@ -23,6 +23,10 @@
   // project got deleted elsewhere, falls back to the projects list instead
   // of showing a blank details panel.
   const effectiveView = $derived(view === 'details' && selectedProject ? 'details' : 'projects')
+  // The preview follows whichever panel is open: the project's own page
+  // while editing its details, the gallery otherwise.
+  const previewPageKey = $derived(effectiveView === 'details' ? 'project' : 'home')
+  const previewProjectId = $derived(effectiveView === 'details' ? selectedProjectId : null)
 
   function update() {
     session.scheduleSave()
@@ -230,7 +234,7 @@
     </div>
   {/if}
 
-  <PreviewPane {session} pageKey="home" />
+  <PreviewPane {session} pageKey={previewPageKey} projectId={previewProjectId} />
 </div>
 
 <style>

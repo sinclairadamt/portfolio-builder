@@ -3,17 +3,19 @@
   import { renderSitePages } from '../render/renderSite.js'
   import { buildPreviewAssetResolver } from '../render/previewResolver.js'
 
-  let { session, pageKey, minHeight = '500px' } = $props()
+  let { session, pageKey, projectId = null, minHeight = '500px' } = $props()
   let html = $state('')
   let currentPageKey = $state(untrack(() => pageKey))
-  let currentProjectId = $state(null)
+  let currentProjectId = $state(untrack(() => projectId))
   let requestToken = 0
 
-  // Reset to the screen's own default page whenever the pageKey prop changes
-  // (e.g. this component remounts fresh when switching editor tabs).
+  // Reset to whatever page/project the parent screen is asking for --
+  // e.g. the Portfolio editor requests the selected project's own page while
+  // its details panel is open, and the gallery otherwise (see PortfolioScreen).
+  // Also covers this component remounting fresh when switching editor tabs.
   $effect(() => {
     currentPageKey = pageKey
-    currentProjectId = null
+    currentProjectId = projectId
   })
 
   // The preview has no real file tree behind it (it's one iframe showing one

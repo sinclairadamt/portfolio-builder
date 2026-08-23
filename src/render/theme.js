@@ -27,6 +27,26 @@ export function resolveFontPair(fontPairId) {
   return FONT_PAIRS[fontPairId] ?? FONT_PAIRS['poppins-inter']
 }
 
+// Shared with SettingsSidebar so the picker's options and the CSS this
+// produces can't drift apart.
+export const GALLERY_ASPECT_RATIO_PRESETS = {
+  '16:9': { label: '16:9 (widescreen)', width: 16, height: 9 },
+  '4:3': { label: '4:3 (standard)', width: 4, height: 3 },
+  '3:2': { label: '3:2 (photo)', width: 3, height: 2 },
+  '1:1': { label: '1:1 (square)', width: 1, height: 1 },
+  custom: { label: 'Custom' },
+}
+
+export function resolveGalleryAspectRatioCss(siteSettings) {
+  if (siteSettings.galleryAspectRatio === 'custom') {
+    const { width, height } = siteSettings.galleryAspectRatioCustom || {}
+    if (width > 0 && height > 0) return `${width} / ${height}`
+    return '4 / 3'
+  }
+  const preset = GALLERY_ASPECT_RATIO_PRESETS[siteSettings.galleryAspectRatio]
+  return preset ? `${preset.width} / ${preset.height}` : '4 / 3'
+}
+
 export function renderGoogleFontsLink(siteSettings) {
   const pair = resolveFontPair(siteSettings.fontPairId)
   return `<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,6 +67,7 @@ export function renderThemeStyleTag(siteSettings) {
   --font-heading: ${pair.headingFamily};
   --font-body: ${pair.bodyFamily};
   --gallery-columns: ${siteSettings.galleryColumns || 3};
+  --gallery-aspect-ratio: ${resolveGalleryAspectRatioCss(siteSettings)};
 }
 ${BASE_CSS}
 </style>`
@@ -103,7 +124,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 }
 .gallery-item { display: block; text-decoration: none; color: inherit; }
 .gallery-thumb {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: var(--gallery-aspect-ratio);
   border-radius: 8px;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.05);

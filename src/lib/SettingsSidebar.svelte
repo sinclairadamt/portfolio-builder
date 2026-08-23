@@ -1,5 +1,5 @@
 <script>
-  import { FONT_PAIRS } from '../render/theme.js'
+  import { FONT_PAIRS, GALLERY_ASPECT_RATIO_PRESETS } from '../render/theme.js'
   import { ingestImageAsset, removeAsset } from '../media/assetRegistry.js'
   import MediaThumb from './MediaThumb.svelte'
   import ColorPickerField from './ColorPickerField.svelte'
@@ -34,6 +34,15 @@
 
   function setColor(key, value) {
     settings.colorPalette[key] = value
+    update()
+  }
+
+  function setCustomRatioDimension(dimension, rawValue) {
+    const value = Number(rawValue)
+    if (!(value > 0)) return
+    // Projects saved before this field existed won't have it yet.
+    settings.galleryAspectRatioCustom ??= { width: 4, height: 3 }
+    settings.galleryAspectRatioCustom[dimension] = value
     update()
   }
 
@@ -132,6 +141,42 @@
         }}
       />
 
+      <label for="gallery-aspect-ratio">Gallery Image/Video Shape</label>
+      <select
+        id="gallery-aspect-ratio"
+        value={settings.galleryAspectRatio}
+        onchange={(e) => {
+          settings.galleryAspectRatio = e.target.value
+          update()
+        }}
+      >
+        {#each Object.entries(GALLERY_ASPECT_RATIO_PRESETS) as [id, preset] (id)}
+          <option value={id}>{preset.label}</option>
+        {/each}
+      </select>
+
+      {#if settings.galleryAspectRatio === 'custom'}
+        <div class="custom-ratio-row">
+          <input
+            type="number"
+            min="0.1"
+            step="0.1"
+            aria-label="Custom aspect ratio width"
+            value={settings.galleryAspectRatioCustom?.width ?? 4}
+            oninput={(e) => setCustomRatioDimension('width', e.target.value)}
+          />
+          <span>:</span>
+          <input
+            type="number"
+            min="0.1"
+            step="0.1"
+            aria-label="Custom aspect ratio height"
+            value={settings.galleryAspectRatioCustom?.height ?? 3}
+            oninput={(e) => setCustomRatioDimension('height', e.target.value)}
+          />
+        </div>
+      {/if}
+
       <label for="font-pair">Fonts</label>
       <select
         id="font-pair"
@@ -192,5 +237,16 @@
     border-radius: 6px;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .custom-ratio-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .custom-ratio-row input {
+    width: 0; /* let flex:1-like sizing come from the flex-basis below */
+    flex: 1;
   }
 </style>

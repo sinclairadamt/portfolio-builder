@@ -21,6 +21,8 @@ export function createEmptyProject() {
       fontPairId: 'poppins-inter',
       navStyle: 'top',
       galleryColumns: 3,
+      galleryAspectRatio: '4:3', // '16:9' | '4:3' | '3:2' | '1:1' | 'custom'
+      galleryAspectRatioCustom: { width: 4, height: 3 },
     },
     about: {
       photoAssetId: null,
