@@ -17,6 +17,8 @@ export function createEmptyProject() {
         secondary: '#00B3A4',
         background: '#FFFFFF',
         text: '#1A1A1A',
+        menuGradientTop: '#00B3A4',
+        menuGradientBottom: '#0B5FFF',
       },
       fontPairId: 'poppins-inter',
       navStyle: 'mobile-only', // 'mobile-only' | 'always' -- hamburger menu scope
@@ -25,7 +27,9 @@ export function createEmptyProject() {
       galleryAspectRatioCustom: { width: 4, height: 3 },
       showAccentLine: true,
       showLogoInHeader: true,
-      contentAlign: 'left', // 'left' | 'center' -- portfolio title/description/caption text
+      titleAlign: 'left', // 'left' | 'center' -- portfolio project title
+      descriptionAlign: 'left',
+      captionAlign: 'left',
     },
     about: {
       photoAssetId: null,
@@ -36,6 +40,7 @@ export function createEmptyProject() {
       phone: '',
       location: { city: '', state: '' },
       socialLinks: [],
+      useIcons: false,
     },
     portfolio: {
       projects: [],

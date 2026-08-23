@@ -75,10 +75,19 @@ export function renderGoogleFontsLink(siteSettings) {
 <link rel="stylesheet" href="${pair.googleFontsHref}">`
 }
 
+function resolveAlign(value, fallback) {
+  return value === 'center' ? 'center' : value === 'left' ? 'left' : fallback === 'center' ? 'center' : 'left'
+}
+
 export function renderThemeStyleTag(siteSettings) {
   const palette = siteSettings.colorPalette
   const pair = resolveFontPair(siteSettings.fontPairId)
-  const contentAlign = siteSettings.contentAlign === 'center' ? 'center' : 'left'
+  // Fall back to the old single contentAlign field (pre-dating the
+  // title/description/caption split) so a project that already set it
+  // doesn't silently revert to left-aligned everywhere.
+  const titleAlign = resolveAlign(siteSettings.titleAlign, siteSettings.contentAlign)
+  const descriptionAlign = resolveAlign(siteSettings.descriptionAlign, siteSettings.contentAlign)
+  const captionAlign = resolveAlign(siteSettings.captionAlign, siteSettings.contentAlign)
   return `<style>
 :root {
   --color-primary: ${palette.primary};
@@ -86,11 +95,16 @@ export function renderThemeStyleTag(siteSettings) {
   --color-secondary: ${palette.secondary};
   --color-bg: ${palette.background};
   --color-text: ${palette.text};
+  --menu-gradient-top: ${palette.menuGradientTop || palette.secondary};
+  --menu-gradient-bottom: ${palette.menuGradientBottom || palette.primary};
   --font-heading: ${pair.headingFamily};
   --font-body: ${pair.bodyFamily};
   --gallery-columns: ${siteSettings.galleryColumns || 3};
   --gallery-aspect-ratio: ${resolveGalleryAspectRatioCss(siteSettings)};
-  --content-align: ${contentAlign};
+  --title-align: ${titleAlign};
+  --description-align: ${descriptionAlign};
+  --caption-align: ${captionAlign};
+  --nav-drawer-width: min(320px, 82vw);
 }
 ${BASE_CSS}
 ${renderAccentLineCss(siteSettings)}
@@ -112,31 +126,54 @@ function renderAccentLineCss(siteSettings) {
 // else (including old projects predating this setting) stays the safer
 // 'mobile-only' default, wrapped in a media query so desktop keeps the
 // plain inline nav links.
+//
+// The drawer pushes the page content left as it slides in (like the
+// michaelkoerbel.com reference), rather than overlaying on top of it, so
+// .page-shell (everything but the drawer) and .site-nav both move in
+// lockstep off a shared --nav-drawer-width. The toggle button itself is the
+// close control too (its glyph morphs between the two via navToggleScript),
+// so there's only ever one button, at one location, instead of a second
+// close button appearing somewhere else on the drawer.
 function renderNavToggleCss(siteSettings) {
+  // The toggle button lives outside .page-shell (a body-level sibling) so it
+  // never moves when .page-shell is pushed left -- it needs position:fixed
+  // here (not just relative) because as a sibling it would otherwise sit in
+  // normal flow above .page-shell rather than pinned to the viewport corner.
+  // The inline nav hides in favor of the drawer nav in this mode.
   const rules = `
-.nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
-.site-nav {
+.site-nav-inline { display: none; }
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 1.25rem;
+  right: 1.5rem;
+  z-index: 2001;
+}
+.page-shell { transition: transform 0.3s ease; }
+.site-nav-drawer {
   position: fixed;
   top: 0;
-  right: 0;
+  right: calc(-1 * var(--nav-drawer-width));
   height: 100vh;
-  width: min(320px, 82vw);
-  background: linear-gradient(180deg, var(--color-secondary), var(--color-primary));
+  width: var(--nav-drawer-width);
+  background: linear-gradient(180deg, var(--menu-gradient-top), var(--menu-gradient-bottom));
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2rem;
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: right 0.3s ease;
   z-index: 2000;
   padding: 2rem;
   box-sizing: border-box;
 }
-.site-nav.open { transform: translateX(0); }
-.site-nav a { color: white; font-size: 1.25rem; }
-.site-nav a:hover { color: rgba(255, 255, 255, 0.75); }
-.site-nav a[aria-current="page"] { color: white; text-decoration: underline; }
-.nav-close { display: block; }
+body.menu-open .page-shell { transform: translateX(calc(-1 * var(--nav-drawer-width))); }
+body.menu-open .site-nav-drawer { right: 0; }
+.site-nav-drawer a { color: white; font-size: 1.25rem; }
+.site-nav-drawer a:hover { color: rgba(255, 255, 255, 0.75); }
+.site-nav-drawer a[aria-current="page"] { color: white; text-decoration: underline; }
 `
   if (siteSettings.navStyle === 'always') return rules
   return `@media (max-width: 768px) {\n${rules}\n}`
@@ -147,6 +184,7 @@ function renderNavToggleCss(siteSettings) {
 // rather than a second theme.
 const BASE_CSS = `
 * { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -158,6 +196,17 @@ h1, h2, h3 { font-family: var(--font-heading); line-height: 1.25; }
 a { color: var(--color-primary); }
 a:hover { color: var(--color-primary-hover); }
 img { max-width: 100%; display: block; }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .site-header {
   display: flex;
@@ -179,12 +228,12 @@ img { max-width: 100%; display: block; }
   color: var(--color-text);
 }
 .site-logo { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
-.site-nav { display: flex; gap: 1.25rem; }
-.site-nav a { text-decoration: none; color: var(--color-text); font-weight: 500; }
-.site-nav a:hover { color: var(--color-primary-hover); }
-.site-nav a[aria-current="page"] { color: var(--color-primary); }
-.nav-toggle, .nav-close { display: none; background: none; border: none; font-size: 1.75rem; line-height: 1; cursor: pointer; color: var(--color-text); padding: 0.25rem; }
-.nav-close { color: white; position: absolute; top: 1.25rem; left: 1.25rem; }
+.site-nav-inline { display: flex; gap: 1.25rem; }
+.site-nav-inline a, .site-nav-drawer a { text-decoration: none; color: var(--color-text); font-weight: 500; }
+.site-nav-inline a:hover { color: var(--color-primary-hover); }
+.site-nav-inline a[aria-current="page"] { color: var(--color-primary); }
+.site-nav-drawer { display: none; }
+.nav-toggle { display: none; background: none; border: none; font-size: 1.75rem; line-height: 1; cursor: pointer; color: var(--color-text); padding: 0.25rem; }
 
 main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
@@ -202,7 +251,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 }
 .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .gallery-thumb-placeholder { width: 100%; height: 100%; }
-.gallery-caption { margin: 0.6rem 0 0; font-weight: 500; text-align: var(--content-align); }
+.gallery-caption { margin: 0.6rem 0 0; font-weight: 500; text-align: var(--title-align); }
 
 .project-detail { max-width: 800px; margin: 0 auto; }
 .project-detail h2 {
@@ -210,9 +259,9 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   border-bottom: 2px solid var(--color-secondary);
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
-  text-align: var(--content-align);
+  text-align: var(--title-align);
 }
-.project-description { margin: 0 0 1.5rem; opacity: 0.8; text-align: var(--content-align); }
+.project-description { margin: 0 0 1.5rem; opacity: 0.8; text-align: var(--description-align); }
 .project-nav {
   display: flex;
   justify-content: space-between;
@@ -242,7 +291,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   overflow: hidden;
 }
 .media-image-button img { width: 100%; height: auto; display: block; }
-figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: var(--content-align); }
+figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: var(--caption-align); }
 
 .youtube-facade {
   position: relative;
@@ -281,7 +330,9 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 .resume-button { margin-top: 1rem; }
 
 .contact { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-.social-links { list-style: none; padding: 0; display: flex; gap: 1rem; flex-wrap: wrap; }
+.social-links { list-style: none; padding: 0; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.social-links a { display: inline-flex; align-items: center; }
+.social-links svg { width: 24px; height: 24px; fill: currentColor; }
 .contact-form { display: flex; flex-direction: column; gap: 0.75rem; }
 .contact-form label { font-weight: 500; font-size: 0.9rem; }
 .contact-form input, .contact-form textarea {
@@ -332,7 +383,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 .empty-state { text-align: center; padding: 4rem 0; opacity: 0.6; }
 
 @media (max-width: 640px) {
-  .site-nav { gap: 0.75rem; font-size: 0.9rem; }
+  .site-nav-inline { gap: 0.75rem; font-size: 0.9rem; }
   main { padding: 1.5rem 1rem 3rem; }
   .contact { grid-template-columns: 1fr; }
   .about-photo { width: 160px; height: 160px; }

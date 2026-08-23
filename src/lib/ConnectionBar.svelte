@@ -38,12 +38,12 @@
   <div class="actions">
     {#if session.supportsFolderMode}
       <button onclick={() => run('Opening folder picker...', () => session.pickFolder())}>
-        Choose Project Folder
+        Choose Portfolio Folder
       </button>
     {/if}
-    <button onclick={() => session.startZipProject()}>New ZIP Project</button>
+    <button onclick={() => session.startZipProject()}>New Portfolio ZIP</button>
     <label class="file-button">
-      Import ZIP
+      Import Portfolio ZIP
       <input type="file" accept=".zip" onchange={onImportZipChange} hidden />
     </label>
     {#if session.store?.mode === 'zip'}

@@ -60,7 +60,7 @@ export class ProjectSession {
     this.store = zipStore
     this.project = zipStore.newProject()
     this.connectionStatus = 'connected'
-    this.connectionName = 'Untitled project (ZIP mode)'
+    this.connectionName = 'Untitled portfolio (ZIP mode)'
   }
 
   async importZip(file) {

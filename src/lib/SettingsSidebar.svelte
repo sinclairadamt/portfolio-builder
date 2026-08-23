@@ -66,7 +66,7 @@
 
   {#if !collapsed}
     <div class="sidebar-content">
-      <h2>Site Settings</h2>
+      <h2>Settings &amp; Design</h2>
 
       <label for="site-title">Site Title</label>
       <input
@@ -147,7 +147,7 @@
             update()
           }}
         />
-        Show accent line under project title
+        Show accent line under portfolio title
       </label>
 
       <label for="gallery-columns">Gallery Columns</label>
@@ -201,12 +201,38 @@
         </div>
       {/if}
 
-      <label for="content-align">Title/Description/Caption Alignment</label>
+      <label for="title-align">Title Alignment</label>
       <select
-        id="content-align"
-        value={settings.contentAlign || 'left'}
+        id="title-align"
+        value={settings.titleAlign || 'left'}
         onchange={(e) => {
-          settings.contentAlign = e.target.value
+          settings.titleAlign = e.target.value
+          update()
+        }}
+      >
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+      </select>
+
+      <label for="description-align">Description Alignment</label>
+      <select
+        id="description-align"
+        value={settings.descriptionAlign || 'left'}
+        onchange={(e) => {
+          settings.descriptionAlign = e.target.value
+          update()
+        }}
+      >
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+      </select>
+
+      <label for="caption-align">Caption Alignment</label>
+      <select
+        id="caption-align"
+        value={settings.captionAlign || 'left'}
+        onchange={(e) => {
+          settings.captionAlign = e.target.value
           update()
         }}
       >
@@ -226,6 +252,19 @@
         <option value="mobile-only">Mobile only</option>
         <option value="always">Always</option>
       </select>
+
+      <ColorPickerField
+        label="Menu Gradient Top Color"
+        id="menu-gradient-top"
+        value={settings.colorPalette.menuGradientTop || settings.colorPalette.secondary}
+        onChange={(v) => setColor('menuGradientTop', v)}
+      />
+      <ColorPickerField
+        label="Menu Gradient Bottom Color"
+        id="menu-gradient-bottom"
+        value={settings.colorPalette.menuGradientBottom || settings.colorPalette.primary}
+        onChange={(v) => setColor('menuGradientBottom', v)}
+      />
 
       <label for="font-pair">Fonts</label>
       <select

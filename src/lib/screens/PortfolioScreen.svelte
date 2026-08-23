@@ -115,6 +115,7 @@
 </script>
 
 <div class="portfolio-screen">
+  <h2>Portfolio</h2>
   <nav class="breadcrumb" aria-label="Portfolio editor breadcrumb">
     {#if effectiveView === 'projects'}
       <span class="crumb current">Projects</span>
@@ -156,7 +157,7 @@
     </div>
   {:else}
     <div class="panel">
-      <h3>Project Details</h3>
+      <h3>Details</h3>
       <label for="proj-desc">Description</label>
       <textarea
         id="proj-desc"

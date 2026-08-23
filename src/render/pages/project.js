@@ -9,7 +9,7 @@ export function renderProjectPage(project, currentProjectId, resolveAsset, { isP
   const projects = project.portfolio.projects
   const index = projects.findIndex((proj) => proj.id === currentProjectId)
   const proj = projects[index]
-  if (!proj) return '<section class="empty-state"><p>Project not found.</p></section>'
+  if (!proj) return '<section class="empty-state"><p>Portfolio item not found.</p></section>'
 
   const descriptionHtml = proj.description
     ? `<p class="project-description">${escapeHtmlMultiline(proj.description)}</p>`

@@ -70,16 +70,16 @@ ${renderGoogleFontsLink(siteSettings)}
 ${renderThemeStyleTag(siteSettings)}
 </head>
 <body>
+<button type="button" class="nav-toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false">&#9776;</button>
+<div class="page-shell" data-page-shell>
 <header class="site-header">
   <a class="site-title" href="${homeHref}"${homeDataPage}>${headerLogoSrc ? `<img class="site-logo" src="${escapeHtml(headerLogoSrc)}" alt="">` : ''}${escapeHtml(siteTitle)}</a>
-  <button type="button" class="nav-toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false">&#9776;</button>
-  <nav class="site-nav" data-site-nav>
-    <button type="button" class="nav-close" data-nav-close aria-label="Close menu">&times;</button>
-    ${nav}
-  </nav>
+  <nav class="site-nav-inline">${nav}</nav>
 </header>
 <main>${bodyHtml}</main>
 <footer class="site-footer"><p>&copy; ${escapeHtml(siteTitle)}</p></footer>
+</div>
+<nav class="site-nav-drawer" data-site-nav>${nav}</nav>
 ${renderLightboxMarkup()}
 <script>${lightboxScript}</script>
 <script>${navToggleScript}</script>

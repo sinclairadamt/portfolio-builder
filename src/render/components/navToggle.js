@@ -3,27 +3,33 @@
 // decides whether the toggle/drawer are actually visible (see
 // theme.js renderNavToggleCss) -- this script just wires the interaction
 // whenever those elements exist.
+//
+// One button doubles as both open and close control (its glyph morphs
+// between the two), so the "X" always sits exactly where the hamburger icon
+// was rather than a second close button appearing elsewhere. Opening toggles
+// a class on <body> rather than the nav itself, since CSS uses that same
+// class to push .page-shell left in sync with the drawer sliding in.
 export const navToggleScript = `(function () {
   var toggle = document.querySelector('[data-nav-toggle]');
-  var nav = document.querySelector('[data-site-nav]');
-  var closeBtn = document.querySelector('[data-nav-close]');
-  if (!toggle || !nav) return;
+  if (!toggle) return;
+  var openGlyph = toggle.innerHTML;
+  var closeGlyph = '&times;';
 
-  function openMenu() {
-    nav.classList.add('open');
-    toggle.setAttribute('aria-expanded', 'true');
+  function isOpen() {
+    return document.body.classList.contains('menu-open');
   }
-  function closeMenu() {
-    nav.classList.remove('open');
-    toggle.setAttribute('aria-expanded', 'false');
+  function setOpen(open) {
+    document.body.classList.toggle('menu-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.innerHTML = open ? closeGlyph : openGlyph;
   }
 
   toggle.addEventListener('click', function () {
-    if (nav.classList.contains('open')) closeMenu();
-    else openMenu();
+    setOpen(!isOpen());
   });
-  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
-  nav.querySelectorAll('a').forEach(function (a) {
-    a.addEventListener('click', closeMenu);
+  document.querySelectorAll('[data-site-nav] a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      setOpen(false);
+    });
   });
 })();`

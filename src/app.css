@@ -19,3 +19,15 @@ h1 {
   font-size: 1.5rem;
   margin: 0;
 }
+
+/* No explicit h2 rule previously existed, so each screen's <h2> title fell
+   back to the browser's default margin -- which visually differs depending
+   on whether the heading's parent is a flex container (margin doesn't
+   collapse, so the full default margin shows as extra gap) or plain block
+   flow (margin collapses with whatever's above it). That's why screen
+   titles appeared inconsistently sized/positioned across tabs. */
+h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}

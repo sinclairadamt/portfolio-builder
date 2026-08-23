@@ -103,6 +103,18 @@
       </div>
     {/each}
     <button onclick={addLink}>+ Add Link</button>
+
+    <label class="checkbox-row">
+      <input
+        type="checkbox"
+        checked={contact.useIcons === true}
+        onchange={(e) => {
+          contact.useIcons = e.target.checked
+          update()
+        }}
+      />
+      Use icons for social links instead of text
+    </label>
   </div>
 
   <PreviewPane {session} pageKey="contact" />
@@ -154,5 +166,16 @@
     border-radius: 6px;
     background: white;
     cursor: pointer;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 400;
+  }
+
+  .checkbox-row input {
+    width: auto;
   }
 </style>
