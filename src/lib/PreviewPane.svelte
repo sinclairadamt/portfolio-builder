@@ -52,12 +52,20 @@
     if (!store) return
 
     ;(async () => {
-      const resolveAsset = await buildPreviewAssetResolver(store, snapshot)
-      const pages = renderSitePages(snapshot, { makeResolver: () => resolveAsset, isPreview: true })
-      // Falls back to the gallery if the previewed project no longer exists
-      // (e.g. deleted in the editor while its page happened to be open here).
-      const nextHtml = key === 'project' ? pages.projects[projectId] ?? pages.home : pages[key]
-      if (token === requestToken) html = nextHtml
+      // A failure here (e.g. an asset resolver hiccup) must not leave `html`
+      // stuck on stale content -- without this catch, an uncaught rejection
+      // would silently drop this render, and the preview would only catch up
+      // whenever some later, unrelated settings change happened to succeed.
+      try {
+        const resolveAsset = await buildPreviewAssetResolver(store, snapshot)
+        const pages = renderSitePages(snapshot, { makeResolver: () => resolveAsset, isPreview: true })
+        // Falls back to the gallery if the previewed project no longer exists
+        // (e.g. deleted in the editor while its page happened to be open here).
+        const nextHtml = key === 'project' ? pages.projects[projectId] ?? pages.home : pages[key]
+        if (token === requestToken) html = nextHtml
+      } catch (err) {
+        console.error('Preview render failed', err)
+      }
     })()
   })
 </script>
