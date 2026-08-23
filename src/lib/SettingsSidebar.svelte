@@ -229,7 +229,7 @@
         }}
       />
 
-      <label for="gallery-aspect-ratio">Image/Video Cropping</label>
+      <label for="gallery-aspect-ratio">Cropping</label>
       <select
         id="gallery-aspect-ratio"
         value={settings.galleryAspectRatio}
@@ -281,13 +281,13 @@
       </select>
 
       <ColorPickerField
-        label="Menu Gradient Top"
+        label="Gradient Top"
         id="menu-gradient-top"
         value={settings.colorPalette.menuGradientTop || settings.colorPalette.secondary}
         onChange={(v) => setColor('menuGradientTop', v)}
       />
       <ColorPickerField
-        label="Menu Gradient Bottom"
+        label="Gradient Bottom"
         id="menu-gradient-bottom"
         value={settings.colorPalette.menuGradientBottom || settings.colorPalette.primary}
         onChange={(v) => setColor('menuGradientBottom', v)}
