@@ -95,6 +95,18 @@
       {/if}
       <input id="logo" type="file" accept="image/*" onchange={onLogoChange} />
 
+      <label class="checkbox-row">
+        <input
+          type="checkbox"
+          checked={settings.showLogoInHeader !== false}
+          onchange={(e) => {
+            settings.showLogoInHeader = e.target.checked
+            update()
+          }}
+        />
+        Show logo in header (still used as favicon either way)
+      </label>
+
       <ColorPickerField
         label="Background Color"
         id="background-color"
@@ -125,6 +137,18 @@
         value={settings.colorPalette.secondary}
         onChange={(v) => setColor('secondary', v)}
       />
+
+      <label class="checkbox-row">
+        <input
+          type="checkbox"
+          checked={settings.showAccentLine !== false}
+          onchange={(e) => {
+            settings.showAccentLine = e.target.checked
+            update()
+          }}
+        />
+        Show accent line under project title
+      </label>
 
       <label for="gallery-columns">Gallery Columns</label>
       <input
@@ -176,6 +200,32 @@
           />
         </div>
       {/if}
+
+      <label for="content-align">Title/Description/Caption Alignment</label>
+      <select
+        id="content-align"
+        value={settings.contentAlign || 'left'}
+        onchange={(e) => {
+          settings.contentAlign = e.target.value
+          update()
+        }}
+      >
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+      </select>
+
+      <label for="nav-style">Hamburger Menu</label>
+      <select
+        id="nav-style"
+        value={settings.navStyle === 'always' ? 'always' : 'mobile-only'}
+        onchange={(e) => {
+          settings.navStyle = e.target.value
+          update()
+        }}
+      >
+        <option value="mobile-only">Mobile only</option>
+        <option value="always">Always</option>
+      </select>
 
       <label for="font-pair">Fonts</label>
       <select
@@ -248,5 +298,17 @@
   .custom-ratio-row input {
     width: 0; /* let flex:1-like sizing come from the flex-basis below */
     flex: 1;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 400;
+  }
+
+  .checkbox-row input {
+    width: auto;
+    flex-shrink: 0;
   }
 </style>

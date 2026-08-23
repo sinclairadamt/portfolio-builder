@@ -19,10 +19,13 @@ export function createEmptyProject() {
         text: '#1A1A1A',
       },
       fontPairId: 'poppins-inter',
-      navStyle: 'top',
+      navStyle: 'mobile-only', // 'mobile-only' | 'always' -- hamburger menu scope
       galleryColumns: 3,
       galleryAspectRatio: '4:3', // '16:9' | '4:3' | '3:2' | '1:1' | 'custom'
       galleryAspectRatioCustom: { width: 4, height: 3 },
+      showAccentLine: true,
+      showLogoInHeader: true,
+      contentAlign: 'left', // 'left' | 'center' -- portfolio title/description/caption text
     },
     about: {
       photoAssetId: null,

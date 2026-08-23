@@ -2,6 +2,7 @@ import { escapeHtml } from './escapeHtml.js'
 import { renderGoogleFontsLink, renderThemeStyleTag } from './theme.js'
 import { renderLightboxMarkup, lightboxScript } from './components/lightbox.js'
 import { previewNavScript } from './components/previewNav.js'
+import { navToggleScript } from './components/navToggle.js'
 import { PAGES, hrefTo } from './paths.js'
 
 function firstPortfolioImageAssetId(project) {
@@ -30,6 +31,9 @@ export function renderPage({
   const metaDescription = escapeHtml(description || '')
 
   const logoSrc = siteSettings.logoAssetId ? resolveAsset(siteSettings.logoAssetId) : ''
+  // The favicon/OG image keep using the logo even when it's hidden from the
+  // header -- "remove the logo but still have a favicon" is the whole point.
+  const headerLogoSrc = siteSettings.showLogoInHeader !== false ? logoSrc : ''
   const ogImageAssetId = siteSettings.logoAssetId || firstPortfolioImageAssetId(project)
   const ogImageSrc = ogImageAssetId ? resolveAsset(ogImageAssetId) : ''
 
@@ -67,13 +71,18 @@ ${renderThemeStyleTag(siteSettings)}
 </head>
 <body>
 <header class="site-header">
-  <a class="site-title" href="${homeHref}"${homeDataPage}>${logoSrc ? `<img class="site-logo" src="${escapeHtml(logoSrc)}" alt="">` : ''}${escapeHtml(siteTitle)}</a>
-  <nav class="site-nav">${nav}</nav>
+  <a class="site-title" href="${homeHref}"${homeDataPage}>${headerLogoSrc ? `<img class="site-logo" src="${escapeHtml(headerLogoSrc)}" alt="">` : ''}${escapeHtml(siteTitle)}</a>
+  <button type="button" class="nav-toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false">&#9776;</button>
+  <nav class="site-nav" data-site-nav>
+    <button type="button" class="nav-close" data-nav-close aria-label="Close menu">&times;</button>
+    ${nav}
+  </nav>
 </header>
 <main>${bodyHtml}</main>
 <footer class="site-footer"><p>&copy; ${escapeHtml(siteTitle)}</p></footer>
 ${renderLightboxMarkup()}
 <script>${lightboxScript}</script>
+<script>${navToggleScript}</script>
 ${isPreview ? `<script>${previewNavScript}</script>` : ''}
 </body>
 </html>`

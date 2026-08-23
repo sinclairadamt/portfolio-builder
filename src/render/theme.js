@@ -21,6 +21,27 @@ export const FONT_PAIRS = {
     googleFontsHref:
       'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Work+Sans:wght@400;500&display=swap',
   },
+  'oswald-open-sans': {
+    label: 'Oswald / Open Sans',
+    headingFamily: "'Oswald', sans-serif",
+    bodyFamily: "'Open Sans', sans-serif",
+    googleFontsHref:
+      'https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Open+Sans:wght@400;500&display=swap',
+  },
+  'libre-baskerville-work-sans': {
+    label: 'Libre Baskerville / Work Sans',
+    headingFamily: "'Libre Baskerville', serif",
+    bodyFamily: "'Work Sans', sans-serif",
+    googleFontsHref:
+      'https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Work+Sans:wght@400;500&display=swap',
+  },
+  'raleway-roboto': {
+    label: 'Raleway / Roboto',
+    headingFamily: "'Raleway', sans-serif",
+    bodyFamily: "'Roboto', sans-serif",
+    googleFontsHref:
+      'https://fonts.googleapis.com/css2?family=Raleway:wght@600;700&family=Roboto:wght@400;500&display=swap',
+  },
 }
 
 export function resolveFontPair(fontPairId) {
@@ -57,6 +78,7 @@ export function renderGoogleFontsLink(siteSettings) {
 export function renderThemeStyleTag(siteSettings) {
   const palette = siteSettings.colorPalette
   const pair = resolveFontPair(siteSettings.fontPairId)
+  const contentAlign = siteSettings.contentAlign === 'center' ? 'center' : 'left'
   return `<style>
 :root {
   --color-primary: ${palette.primary};
@@ -68,9 +90,56 @@ export function renderThemeStyleTag(siteSettings) {
   --font-body: ${pair.bodyFamily};
   --gallery-columns: ${siteSettings.galleryColumns || 3};
   --gallery-aspect-ratio: ${resolveGalleryAspectRatioCss(siteSettings)};
+  --content-align: ${contentAlign};
 }
 ${BASE_CSS}
+${renderAccentLineCss(siteSettings)}
+${renderNavToggleCss(siteSettings)}
 </style>`
+}
+
+// Projects saved before this field existed have it as `undefined`, not
+// `false` -- treat anything except an explicit `false` as "show", so
+// existing projects keep their current look by default.
+function renderAccentLineCss(siteSettings) {
+  if (siteSettings.showAccentLine === false) {
+    return '.project-detail h2 { border-bottom: none; padding-bottom: 0; }'
+  }
+  return ''
+}
+
+// 'always' applies the hamburger/drawer styles unconditionally; anything
+// else (including old projects predating this setting) stays the safer
+// 'mobile-only' default, wrapped in a media query so desktop keeps the
+// plain inline nav links.
+function renderNavToggleCss(siteSettings) {
+  const rules = `
+.nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
+.site-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: min(320px, 82vw);
+  background: linear-gradient(180deg, var(--color-secondary), var(--color-primary));
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 2000;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+.site-nav.open { transform: translateX(0); }
+.site-nav a { color: white; font-size: 1.25rem; }
+.site-nav a:hover { color: rgba(255, 255, 255, 0.75); }
+.site-nav a[aria-current="page"] { color: white; text-decoration: underline; }
+.nav-close { display: block; }
+`
+  if (siteSettings.navStyle === 'always') return rules
+  return `@media (max-width: 768px) {\n${rules}\n}`
 }
 
 // The one polished, responsive theme for v1. Mobile-first: the media grid and
@@ -114,6 +183,8 @@ img { max-width: 100%; display: block; }
 .site-nav a { text-decoration: none; color: var(--color-text); font-weight: 500; }
 .site-nav a:hover { color: var(--color-primary-hover); }
 .site-nav a[aria-current="page"] { color: var(--color-primary); }
+.nav-toggle, .nav-close { display: none; background: none; border: none; font-size: 1.75rem; line-height: 1; cursor: pointer; color: var(--color-text); padding: 0.25rem; }
+.nav-close { color: white; position: absolute; top: 1.25rem; left: 1.25rem; }
 
 main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
@@ -131,7 +202,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 }
 .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .gallery-thumb-placeholder { width: 100%; height: 100%; }
-.gallery-caption { margin: 0.6rem 0 0; font-weight: 500; }
+.gallery-caption { margin: 0.6rem 0 0; font-weight: 500; text-align: var(--content-align); }
 
 .project-detail { max-width: 800px; margin: 0 auto; }
 .project-detail h2 {
@@ -139,8 +210,9 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   border-bottom: 2px solid var(--color-secondary);
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
+  text-align: var(--content-align);
 }
-.project-description { margin: 0 0 1.5rem; opacity: 0.8; }
+.project-description { margin: 0 0 1.5rem; opacity: 0.8; text-align: var(--content-align); }
 .project-nav {
   display: flex;
   justify-content: space-between;
@@ -170,7 +242,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   overflow: hidden;
 }
 .media-image-button img { width: 100%; height: auto; display: block; }
-figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; }
+figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: var(--content-align); }
 
 .youtube-facade {
   position: relative;
