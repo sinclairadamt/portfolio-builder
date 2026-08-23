@@ -68,6 +68,8 @@
     <div class="sidebar-content">
       <h2>Settings &amp; Design</h2>
 
+      <h3 class="section-heading">General</h3>
+
       <label for="site-title">Site Title</label>
       <input
         id="site-title"
@@ -89,7 +91,7 @@
         }}
       />
 
-      <label for="logo">Logo</label>
+      <label for="logo">Logo / Favicon</label>
       {#if settings.logoAssetId}
         <MediaThumb {session} assetId={settings.logoAssetId} />
       {/if}
@@ -104,38 +106,34 @@
             update()
           }}
         />
-        Show logo in header (still used as favicon either way)
+        Header Logo
       </label>
 
+      <h3 class="section-heading">Colors</h3>
+
       <ColorPickerField
-        label="Background Color"
+        label="Background"
         id="background-color"
         value={settings.colorPalette.background}
         onChange={(v) => setColor('background', v)}
       />
       <ColorPickerField
-        label="Text Color"
+        label="Text"
         id="text-color"
         value={settings.colorPalette.text}
         onChange={(v) => setColor('text', v)}
       />
       <ColorPickerField
-        label="Link &amp; Button Color"
+        label="Links &amp; Buttons"
         id="primary-color"
         value={settings.colorPalette.primary}
         onChange={(v) => setColor('primary', v)}
       />
       <ColorPickerField
-        label="Link Hover Color"
+        label="Link Hover"
         id="link-hover-color"
         value={settings.colorPalette.linkHover}
         onChange={(v) => setColor('linkHover', v)}
-      />
-      <ColorPickerField
-        label="Accent Line Color"
-        id="secondary-color"
-        value={settings.colorPalette.secondary}
-        onChange={(v) => setColor('secondary', v)}
       />
 
       <label class="checkbox-row">
@@ -147,10 +145,76 @@
             update()
           }}
         />
-        Show accent line under portfolio title
+        Show Accent Line
       </label>
 
-      <label for="gallery-columns">Gallery Columns</label>
+      {#if settings.showAccentLine !== false}
+        <ColorPickerField
+          label="Accent Line"
+          id="secondary-color"
+          value={settings.colorPalette.secondary}
+          onChange={(v) => setColor('secondary', v)}
+        />
+      {/if}
+
+      <h3 class="section-heading">Text</h3>
+
+      <label for="font-pair">Fonts</label>
+      <select
+        id="font-pair"
+        value={settings.fontPairId}
+        onchange={(e) => {
+          settings.fontPairId = e.target.value
+          update()
+        }}
+      >
+        {#each Object.entries(FONT_PAIRS) as [id, pair] (id)}
+          <option value={id}>{pair.label}</option>
+        {/each}
+      </select>
+
+      <label for="title-align">Title Align</label>
+      <select
+        id="title-align"
+        value={settings.titleAlign || 'left'}
+        onchange={(e) => {
+          settings.titleAlign = e.target.value
+          update()
+        }}
+      >
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+      </select>
+
+      <label for="description-align">Description Align</label>
+      <select
+        id="description-align"
+        value={settings.descriptionAlign || 'left'}
+        onchange={(e) => {
+          settings.descriptionAlign = e.target.value
+          update()
+        }}
+      >
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+      </select>
+
+      <label for="caption-align">Caption Align</label>
+      <select
+        id="caption-align"
+        value={settings.captionAlign || 'left'}
+        onchange={(e) => {
+          settings.captionAlign = e.target.value
+          update()
+        }}
+      >
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+      </select>
+
+      <h3 class="section-heading">Gallery</h3>
+
+      <label for="gallery-columns">Columns</label>
       <input
         id="gallery-columns"
         type="number"
@@ -165,7 +229,7 @@
         }}
       />
 
-      <label for="gallery-aspect-ratio">Gallery Image/Video Shape</label>
+      <label for="gallery-aspect-ratio">Image/Video Cropping</label>
       <select
         id="gallery-aspect-ratio"
         value={settings.galleryAspectRatio}
@@ -201,44 +265,7 @@
         </div>
       {/if}
 
-      <label for="title-align">Title Alignment</label>
-      <select
-        id="title-align"
-        value={settings.titleAlign || 'left'}
-        onchange={(e) => {
-          settings.titleAlign = e.target.value
-          update()
-        }}
-      >
-        <option value="left">Left</option>
-        <option value="center">Center</option>
-      </select>
-
-      <label for="description-align">Description Alignment</label>
-      <select
-        id="description-align"
-        value={settings.descriptionAlign || 'left'}
-        onchange={(e) => {
-          settings.descriptionAlign = e.target.value
-          update()
-        }}
-      >
-        <option value="left">Left</option>
-        <option value="center">Center</option>
-      </select>
-
-      <label for="caption-align">Caption Alignment</label>
-      <select
-        id="caption-align"
-        value={settings.captionAlign || 'left'}
-        onchange={(e) => {
-          settings.captionAlign = e.target.value
-          update()
-        }}
-      >
-        <option value="left">Left</option>
-        <option value="center">Center</option>
-      </select>
+      <h3 class="section-heading">Navigation</h3>
 
       <label for="nav-style">Hamburger Menu</label>
       <select
@@ -254,31 +281,17 @@
       </select>
 
       <ColorPickerField
-        label="Menu Gradient Top Color"
+        label="Menu Gradient Top"
         id="menu-gradient-top"
         value={settings.colorPalette.menuGradientTop || settings.colorPalette.secondary}
         onChange={(v) => setColor('menuGradientTop', v)}
       />
       <ColorPickerField
-        label="Menu Gradient Bottom Color"
+        label="Menu Gradient Bottom"
         id="menu-gradient-bottom"
         value={settings.colorPalette.menuGradientBottom || settings.colorPalette.primary}
         onChange={(v) => setColor('menuGradientBottom', v)}
       />
-
-      <label for="font-pair">Fonts</label>
-      <select
-        id="font-pair"
-        value={settings.fontPairId}
-        onchange={(e) => {
-          settings.fontPairId = e.target.value
-          update()
-        }}
-      >
-        {#each Object.entries(FONT_PAIRS) as [id, pair] (id)}
-          <option value={id}>{pair.label}</option>
-        {/each}
-      </select>
     </div>
   {/if}
 </aside>
@@ -316,6 +329,22 @@
   label {
     font-weight: 500;
     margin-top: 0.5rem;
+  }
+
+  .section-heading {
+    margin: 1.5rem 0 0.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+  }
+
+  .section-heading:first-of-type {
+    margin-top: 0.5rem;
+    padding-top: 0;
+    border-top: none;
   }
 
   input,
