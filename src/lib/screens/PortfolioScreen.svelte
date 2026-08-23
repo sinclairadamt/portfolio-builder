@@ -115,20 +115,21 @@
 </script>
 
 <div class="portfolio-screen">
-  <h2>Portfolio</h2>
-  <nav class="breadcrumb" aria-label="Portfolio editor breadcrumb">
-    {#if effectiveView === 'projects'}
-      <span class="crumb current">Projects</span>
-    {:else}
-      <button class="crumb" onclick={() => (view = 'projects')}>Projects</button>
-      <span class="crumb-sep">/</span>
-      <span class="crumb current">{selectedProject.title}</span>
-    {/if}
-  </nav>
+  <div class="portfolio-header">
+    <h2>Portfolio</h2>
+    <nav class="breadcrumb" aria-label="Portfolio editor breadcrumb">
+      {#if effectiveView === 'projects'}
+        <span class="crumb current">Projects</span>
+      {:else}
+        <button class="crumb" onclick={() => (view = 'projects')}>Projects</button>
+        <span class="crumb-sep">/</span>
+        <span class="crumb current">{selectedProject.title}</span>
+      {/if}
+    </nav>
+  </div>
 
   {#if effectiveView === 'projects'}
     <div class="panel">
-      <h3>Projects</h3>
       {#each portfolio.projects as proj, index (proj.id)}
         <div class="list-row">
           <input
@@ -245,11 +246,17 @@
     gap: 1.5rem;
   }
 
+  .portfolio-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
   .breadcrumb {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.95rem;
+    font-weight: 500;
   }
 
   .crumb {
@@ -264,7 +271,7 @@
 
   .crumb.current {
     color: inherit;
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
     cursor: default;
   }
