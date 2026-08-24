@@ -27,7 +27,7 @@ export function renderPage({
   const { siteSettings } = project
   const siteTitle = siteSettings.siteTitle || 'My Portfolio'
   const pageTitle =
-    pageKey === 'home' ? siteTitle : `${pageTitleOverride ?? PAGES[pageKey].title} — ${siteTitle}`
+    pageKey === 'home' ? siteTitle : `${siteTitle} - ${pageTitleOverride ?? PAGES[pageKey].title}`
   const metaDescription = escapeHtml(description || '')
 
   const logoSrc = siteSettings.logoAssetId ? resolveAsset(siteSettings.logoAssetId) : ''

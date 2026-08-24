@@ -343,10 +343,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  background: var(--form-bg);
   color: var(--form-text);
-  padding: 1.25rem;
-  border-radius: 8px;
 }
 .contact-form label { font-weight: 500; font-size: 0.9rem; }
 .contact-form input, .contact-form textarea {
@@ -386,19 +383,44 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   z-index: 1000;
 }
 .lightbox[hidden] { display: none; }
-.lightbox-image { max-width: 100%; max-height: 80vh; border-radius: 4px; }
+/* calc() accounts for the lightbox's own 2rem top+bottom padding, so the
+   image actually reaches the full available height instead of overflowing
+   past the viewport edge behind it. */
+.lightbox-image { max-width: 100%; max-height: calc(100vh - 4rem); }
 .lightbox-caption { color: white; margin-top: 1rem; text-align: center; }
 .lightbox-close {
   position: absolute;
-  top: 1rem;
+  top: 1.25rem;
   right: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem;
+}
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 2rem;
   background: none;
   border: none;
   color: white;
   cursor: pointer;
   line-height: 1;
+  padding: 0.5rem;
 }
+.lightbox-nav[hidden] { display: none; }
+.lightbox-prev { left: 1rem; }
+.lightbox-next { right: 1rem; }
 
 .empty-state { text-align: center; padding: 4rem 0; opacity: 0.6; }
 

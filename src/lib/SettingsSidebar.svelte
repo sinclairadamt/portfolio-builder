@@ -1,4 +1,5 @@
 <script>
+  import { slide } from 'svelte/transition'
   import { FONT_PAIRS, GALLERY_ASPECT_RATIO_PRESETS } from '../render/theme.js'
   import { ingestImageAsset, removeAsset } from '../media/assetRegistry.js'
   import MediaThumb from './MediaThumb.svelte'
@@ -117,7 +118,7 @@
           <span class="chevron" class:open={openSection === 'General'}>&#9656;</span>
         </button>
         {#if openSection === 'General'}
-          <div class="section-body">
+          <div class="section-body" transition:slide={{ duration: 180 }}>
             <label for="site-title">Site Title</label>
             <input
               id="site-title"
@@ -177,7 +178,7 @@
           <span class="chevron" class:open={openSection === 'Colors'}>&#9656;</span>
         </button>
         {#if openSection === 'Colors'}
-          <div class="section-body">
+          <div class="section-body" transition:slide={{ duration: 180 }}>
             <ColorPickerField
               label="Background"
               id="background-color"
@@ -237,7 +238,7 @@
           <span class="chevron" class:open={openSection === 'Text'}>&#9656;</span>
         </button>
         {#if openSection === 'Text'}
-          <div class="section-body">
+          <div class="section-body" transition:slide={{ duration: 180 }}>
             <label for="font-pair">Fonts</label>
             <select
               id="font-pair"
@@ -304,7 +305,7 @@
           <span class="chevron" class:open={openSection === 'Images'}>&#9656;</span>
         </button>
         {#if openSection === 'Images'}
-          <div class="section-body">
+          <div class="section-body" transition:slide={{ duration: 180 }}>
             <label for="gallery-columns">Columns</label>
             <input
               id="gallery-columns"
@@ -384,7 +385,7 @@
           <span class="chevron" class:open={openSection === 'Navigation'}>&#9656;</span>
         </button>
         {#if openSection === 'Navigation'}
-          <div class="section-body">
+          <div class="section-body" transition:slide={{ duration: 180 }}>
             <label for="nav-style">Hamburger Menu</label>
             <select
               id="nav-style"

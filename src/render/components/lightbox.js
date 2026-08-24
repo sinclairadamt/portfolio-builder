@@ -1,7 +1,9 @@
 export function renderLightboxMarkup() {
   return `<div id="lightbox" class="lightbox" hidden>
   <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+  <button type="button" class="lightbox-nav lightbox-prev" aria-label="Previous image" hidden>&#8249;</button>
   <img class="lightbox-image" src="" alt="">
+  <button type="button" class="lightbox-nav lightbox-next" aria-label="Next image" hidden>&#8250;</button>
   <p class="lightbox-caption"></p>
 </div>`
 }
@@ -16,11 +18,21 @@ export const lightboxScript = `(function () {
   var img = lightbox.querySelector('.lightbox-image');
   var caption = lightbox.querySelector('.lightbox-caption');
   var closeBtn = lightbox.querySelector('.lightbox-close');
+  var prevBtn = lightbox.querySelector('.lightbox-prev');
+  var nextBtn = lightbox.querySelector('.lightbox-next');
+  // Every lightbox-triggering image on the page belongs to the one project
+  // (or About photo) rendered there, so this is already scoped correctly --
+  // no separate "which project" bookkeeping needed.
+  var items = Array.prototype.slice.call(document.querySelectorAll('[data-lightbox-src]'));
+  var currentIndex = -1;
 
-  function open(src, alt, captionText) {
-    img.src = src;
-    img.alt = alt || '';
-    caption.textContent = captionText || '';
+  function openIndex(index) {
+    var el = items[index];
+    if (!el) return;
+    currentIndex = index;
+    img.src = el.getAttribute('data-lightbox-src');
+    img.alt = el.getAttribute('data-lightbox-alt') || '';
+    caption.textContent = el.getAttribute('data-lightbox-caption') || '';
     lightbox.hidden = false;
     document.body.style.overflow = 'hidden';
   }
@@ -29,15 +41,27 @@ export const lightboxScript = `(function () {
     img.src = '';
     document.body.style.overflow = '';
   }
+  function step(delta) {
+    openIndex((currentIndex + delta + items.length) % items.length);
+  }
 
-  document.querySelectorAll('[data-lightbox-src]').forEach(function (el) {
-    el.addEventListener('click', function () {
-      open(el.getAttribute('data-lightbox-src'), el.getAttribute('data-lightbox-alt'), el.getAttribute('data-lightbox-caption'));
-    });
+  items.forEach(function (el, index) {
+    el.addEventListener('click', function () { openIndex(index); });
   });
+  if (items.length > 1) {
+    prevBtn.hidden = false;
+    nextBtn.hidden = false;
+    prevBtn.addEventListener('click', function () { step(-1); });
+    nextBtn.addEventListener('click', function () { step(1); });
+  }
   closeBtn.addEventListener('click', close);
   lightbox.addEventListener('click', function (e) { if (e.target === lightbox) close(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  document.addEventListener('keydown', function (e) {
+    if (lightbox.hidden) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowLeft' && items.length > 1) step(-1);
+    if (e.key === 'ArrowRight' && items.length > 1) step(1);
+  });
 
   document.querySelectorAll('[data-youtube-facade]').forEach(function (el) {
     el.addEventListener('click', function () {

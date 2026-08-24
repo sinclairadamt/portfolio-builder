@@ -6,6 +6,7 @@ const SOCIAL_LABELS = {
   instagram: 'Instagram',
   behance: 'Behance',
   deviantart: 'DeviantArt',
+  flickr: 'Flickr',
 }
 
 // GitHub Pages can't run a server-side form handler, so the form posts to
