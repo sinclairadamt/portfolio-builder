@@ -11,6 +11,9 @@ export function createEmptyProject() {
       siteTitle: '',
       publishUrl: '',
       logoAssetId: null,
+      // Falls back to logoAssetId when unset (see renderPage) -- most
+      // students won't bother with a separate favicon upload.
+      faviconAssetId: null,
       colorPalette: {
         primary: '#0B5FFF',
         linkHover: '#0842B0',

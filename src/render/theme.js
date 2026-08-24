@@ -227,7 +227,10 @@ img { max-width: 100%; display: block; }
   text-decoration: none;
   color: var(--color-text);
 }
-.site-logo { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
+/* height-constrained + width:auto keeps the logo's own aspect ratio intact
+   (no forced-square crop) -- a max-width here would fight that by capping
+   width independently of height, which would squish wide logos instead. */
+.site-logo { height: 32px; width: auto; object-fit: contain; }
 .site-nav-inline { display: flex; gap: 1.25rem; }
 .site-nav-inline a, .site-nav-drawer a { text-decoration: none; color: var(--color-text); font-weight: 500; }
 .site-nav-inline a:hover { color: var(--color-primary-hover); }

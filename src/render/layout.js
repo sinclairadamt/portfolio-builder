@@ -31,11 +31,15 @@ export function renderPage({
   const metaDescription = escapeHtml(description || '')
 
   const logoSrc = siteSettings.logoAssetId ? resolveAsset(siteSettings.logoAssetId) : ''
-  // The favicon/OG image keep using the logo even when it's hidden from the
-  // header -- "remove the logo but still have a favicon" is the whole point.
+  // The logo stays usable as an OG preview image even when it's hidden from
+  // the header -- "remove the logo but still have a favicon" is the whole
+  // point of showLogoInHeader.
   const headerLogoSrc = siteSettings.showLogoInHeader !== false ? logoSrc : ''
   const ogImageAssetId = siteSettings.logoAssetId || firstPortfolioImageAssetId(project)
   const ogImageSrc = ogImageAssetId ? resolveAsset(ogImageAssetId) : ''
+  // Falls back to the logo when no separate favicon was uploaded.
+  const faviconAssetId = siteSettings.faviconAssetId || siteSettings.logoAssetId
+  const faviconSrc = faviconAssetId ? resolveAsset(faviconAssetId) : ''
 
   // In preview mode, nav links get a harmless '#' href (real navigation is
   // intercepted by previewNavScript below) instead of the export's
@@ -65,7 +69,7 @@ export function renderPage({
 <meta property="og:title" content="${escapeHtml(pageTitle)}">
 <meta property="og:description" content="${metaDescription}">
 ${ogImageSrc ? `<meta property="og:image" content="${escapeHtml(ogImageSrc)}">` : ''}
-${logoSrc ? `<link rel="icon" href="${escapeHtml(logoSrc)}">` : ''}
+${faviconSrc ? `<link rel="icon" href="${escapeHtml(faviconSrc)}">` : ''}
 ${renderGoogleFontsLink(siteSettings)}
 ${renderThemeStyleTag(siteSettings)}
 </head>

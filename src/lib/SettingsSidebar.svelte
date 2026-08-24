@@ -57,6 +57,18 @@
     update()
     event.target.value = ''
   }
+
+  async function onFaviconChange(event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const previousAssetId = settings.faviconAssetId
+    settings.faviconAssetId = await ingestImageAsset(session.store, session.project, file, {
+      keepTransparency: true,
+    })
+    if (previousAssetId) await removeAsset(session.store, session.project, previousAssetId)
+    update()
+    event.target.value = ''
+  }
 </script>
 
 <aside class="sidebar" class:collapsed>
@@ -91,11 +103,18 @@
         }}
       />
 
-      <label for="logo">Logo / Favicon</label>
+      <label for="logo">Logo</label>
       {#if settings.logoAssetId}
         <MediaThumb {session} assetId={settings.logoAssetId} />
       {/if}
       <input id="logo" type="file" accept="image/*" onchange={onLogoChange} />
+
+      <label for="favicon">Favicon</label>
+      {#if settings.faviconAssetId}
+        <MediaThumb {session} assetId={settings.faviconAssetId} />
+      {/if}
+      <input id="favicon" type="file" accept="image/*" onchange={onFaviconChange} />
+      <p class="field-hint">Falls back to the logo above if left empty.</p>
 
       <label class="checkbox-row">
         <input
@@ -366,6 +385,12 @@
   .custom-ratio-row input {
     width: 0; /* let flex:1-like sizing come from the flex-basis below */
     flex: 1;
+  }
+
+  .field-hint {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #888;
   }
 
   .checkbox-row {
