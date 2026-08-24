@@ -4,7 +4,14 @@
   --border: #e5e4e7;
 
   font: 16px/145% system-ui, 'Segoe UI', Roboto, sans-serif;
-  color-scheme: light dark;
+  /* The editor only has one theme (light) -- claiming "light dark" support
+     here with no actual dark-mode overrides made browsers render native
+     form controls (buttons, selects) with dark-mode widget colors on a
+     browser/OS set to dark, while our CSS hardcodes light backgrounds
+     (e.g. `background: white` on buttons), so button text went white-on-
+     white. Declaring light-only keeps native controls consistent with the
+     rest of this light-only design. */
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
