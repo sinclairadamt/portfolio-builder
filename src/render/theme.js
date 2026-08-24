@@ -354,6 +354,10 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   background: var(--form-bg);
   color: inherit;
 }
+.contact-form textarea {
+  resize: none;
+  overflow-y: auto;
+}
 .contact-form input::placeholder, .contact-form textarea::placeholder {
   color: inherit;
   opacity: 0.6;
