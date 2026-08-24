@@ -1,12 +1,19 @@
 <script>
   import { createSocialLink } from '../../data/schema.js'
   import PreviewPane from '../PreviewPane.svelte'
+  import ColorPickerField from '../ColorPickerField.svelte'
 
   let { session } = $props()
   const contact = $derived(session.project.contact)
+  const palette = $derived(session.project.siteSettings.colorPalette)
 
   function update() {
     session.scheduleSave()
+  }
+
+  function setFormColor(key, value) {
+    palette[key] = value
+    update()
   }
 
   function addLink() {
@@ -115,6 +122,20 @@
       />
       Use icons for social links instead of text
     </label>
+
+    <h3>Colors</h3>
+    <ColorPickerField
+      label="Form Background"
+      id="form-background-color"
+      value={palette.formBackground || palette.background}
+      onChange={(v) => setFormColor('formBackground', v)}
+    />
+    <ColorPickerField
+      label="Form Text"
+      id="form-text-color"
+      value={palette.formText || palette.text}
+      onChange={(v) => setFormColor('formText', v)}
+    />
   </div>
 
   <PreviewPane {session} pageKey="contact" />

@@ -97,6 +97,8 @@ export function renderThemeStyleTag(siteSettings) {
   --color-text: ${palette.text};
   --menu-gradient-top: ${palette.menuGradientTop || palette.secondary};
   --menu-gradient-bottom: ${palette.menuGradientBottom || palette.primary};
+  --form-bg: ${palette.formBackground || palette.background};
+  --form-text: ${palette.formText || palette.text};
   --font-heading: ${pair.headingFamily};
   --font-body: ${pair.bodyFamily};
   --gallery-columns: ${siteSettings.galleryColumns || 3};
@@ -104,6 +106,7 @@ export function renderThemeStyleTag(siteSettings) {
   --title-align: ${titleAlign};
   --description-align: ${descriptionAlign};
   --caption-align: ${captionAlign};
+  --image-radius: ${siteSettings.imageCornerRadius ?? 8}px;
   --nav-drawer-width: min(320px, 82vw);
 }
 ${BASE_CSS}
@@ -248,7 +251,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 .gallery-item { display: block; text-decoration: none; color: inherit; }
 .gallery-thumb {
   aspect-ratio: var(--gallery-aspect-ratio);
-  border-radius: 8px;
+  border-radius: var(--image-radius);
   overflow: hidden;
   background: rgba(0, 0, 0, 0.05);
 }
@@ -290,7 +293,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   cursor: pointer;
   width: 100%;
   display: block;
-  border-radius: 8px;
+  border-radius: var(--image-radius);
   overflow: hidden;
 }
 .media-image-button img { width: 100%; height: auto; display: block; }
@@ -300,7 +303,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   position: relative;
   aspect-ratio: 16 / 9;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--image-radius);
   overflow: hidden;
   background: #000;
 }
@@ -315,7 +318,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   color: white;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
-.media-item iframe { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; }
+.media-item iframe { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--image-radius); }
 
 .about { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
 .about-photo { width: 220px; height: 220px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
@@ -336,13 +339,27 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 .social-links { list-style: none; padding: 0; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
 .social-links a { display: inline-flex; align-items: center; }
 .social-links svg { width: 24px; height: 24px; fill: currentColor; }
-.contact-form { display: flex; flex-direction: column; gap: 0.75rem; }
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--form-bg);
+  color: var(--form-text);
+  padding: 1.25rem;
+  border-radius: 8px;
+}
 .contact-form label { font-weight: 500; font-size: 0.9rem; }
 .contact-form input, .contact-form textarea {
   padding: 0.6rem;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   font: inherit;
+  background: var(--form-bg);
+  color: inherit;
+}
+.contact-form input::placeholder, .contact-form textarea::placeholder {
+  color: inherit;
+  opacity: 0.6;
 }
 .contact-form button {
   align-self: flex-start;

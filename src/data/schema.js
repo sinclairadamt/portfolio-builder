@@ -22,6 +22,10 @@ export function createEmptyProject() {
         text: '#1A1A1A',
         menuGradientTop: '#00B3A4',
         menuGradientBottom: '#0B5FFF',
+        // null falls back to background/text (see renderThemeStyleTag) so
+        // the contact form matches the page until explicitly customized.
+        formBackground: null,
+        formText: null,
       },
       fontPairId: 'poppins-inter',
       navStyle: 'mobile-only', // 'mobile-only' | 'always' -- hamburger menu scope
@@ -33,6 +37,7 @@ export function createEmptyProject() {
       titleAlign: 'left', // 'left' | 'center' -- portfolio project title
       descriptionAlign: 'left',
       captionAlign: 'left',
+      imageCornerRadius: 8, // px -- gallery thumbs, project media, video facades
     },
     about: {
       photoAssetId: null,
