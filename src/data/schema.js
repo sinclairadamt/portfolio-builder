@@ -26,6 +26,7 @@ export function createEmptyProject() {
         // the contact form matches the page until explicitly customized.
         formBackground: null,
         formText: null,
+        captionGradient: '#000000',
       },
       fontPairId: 'poppins-inter',
       navStyle: 'mobile-only', // 'mobile-only' | 'always' -- hamburger menu scope
@@ -38,6 +39,16 @@ export function createEmptyProject() {
       descriptionAlign: 'left',
       captionAlign: 'left',
       imageCornerRadius: 8, // px -- gallery thumbs, project media, video facades
+      captionStyle: 'underneath', // 'underneath' | 'overlay' | 'overlay-hover' -- gallery tile captions
+      // Preserves current always-on behavior for existing projects; this is
+      // just a way to turn off what already happens today.
+      fullscreenCaption: true,
+      // These three default to false/empty since they're brand-new visual
+      // additions -- an already-published site shouldn't suddenly grow a
+      // floating button or footer text the student never asked for.
+      showBackToTop: false,
+      footerText: '',
+      showCopyrightYear: false,
     },
     about: {
       photoAssetId: null,

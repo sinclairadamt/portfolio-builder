@@ -7,7 +7,7 @@
 
   const COLLAPSED_STORAGE_KEY = 'portfolio-builder:settings-sidebar-collapsed'
   const OPEN_SECTION_STORAGE_KEY = 'portfolio-builder:settings-sidebar-open-section'
-  const SECTIONS = ['General', 'Colors', 'Text', 'Images', 'Navigation']
+  const SECTIONS = ['General', 'Colors', 'Text', 'Images', 'Navigation', 'Footer']
 
   let { session } = $props()
   const settings = $derived(session.project.siteSettings)
@@ -371,6 +371,41 @@
                 update()
               }}
             />
+
+            <label for="caption-style">Caption Style</label>
+            <select
+              id="caption-style"
+              value={settings.captionStyle || 'underneath'}
+              onchange={(e) => {
+                settings.captionStyle = e.target.value
+                update()
+              }}
+            >
+              <option value="underneath">Underneath</option>
+              <option value="overlay">Overlay</option>
+              <option value="overlay-hover">Overlay on Hover</option>
+            </select>
+
+            {#if settings.captionStyle === 'overlay' || settings.captionStyle === 'overlay-hover'}
+              <ColorPickerField
+                label="Caption Gradient"
+                id="caption-gradient-color"
+                value={settings.colorPalette.captionGradient}
+                onChange={(v) => setColor('captionGradient', v)}
+              />
+            {/if}
+
+            <label class="checkbox-row">
+              <input
+                type="checkbox"
+                checked={settings.fullscreenCaption !== false}
+                onchange={(e) => {
+                  settings.fullscreenCaption = e.target.checked
+                  update()
+                }}
+              />
+              Fullscreen Caption
+            </label>
           </div>
         {/if}
       </div>
@@ -411,6 +446,55 @@
               value={settings.colorPalette.menuGradientBottom || settings.colorPalette.primary}
               onChange={(v) => setColor('menuGradientBottom', v)}
             />
+          </div>
+        {/if}
+      </div>
+
+      <div class="accordion-section">
+        <button
+          class="section-heading"
+          onclick={() => toggleSection('Footer')}
+          aria-expanded={openSection === 'Footer'}
+        >
+          <span>Footer</span>
+          <span class="chevron" class:open={openSection === 'Footer'}>&#9656;</span>
+        </button>
+        {#if openSection === 'Footer'}
+          <div class="section-body" transition:slide={{ duration: 180 }}>
+            <label class="checkbox-row">
+              <input
+                type="checkbox"
+                checked={settings.showBackToTop === true}
+                onchange={(e) => {
+                  settings.showBackToTop = e.target.checked
+                  update()
+                }}
+              />
+              Back to Top
+            </label>
+
+            <label for="footer-text">Footer Text</label>
+            <input
+              id="footer-text"
+              value={settings.footerText}
+              placeholder={settings.siteTitle || 'Falls back to Site Title'}
+              oninput={(e) => {
+                settings.footerText = e.target.value
+                update()
+              }}
+            />
+
+            <label class="checkbox-row">
+              <input
+                type="checkbox"
+                checked={settings.showCopyrightYear === true}
+                onchange={(e) => {
+                  settings.showCopyrightYear = e.target.checked
+                  update()
+                }}
+              />
+              Copyright Year
+            </label>
           </div>
         {/if}
       </div>

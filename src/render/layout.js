@@ -59,6 +59,28 @@ export function renderPage({
     })
     .join('')
 
+  // "Falls back to the site title" -- an empty custom footer text isn't
+  // treated as "show nothing", it's treated as "not customized".
+  const footerLabel = siteSettings.footerText || siteTitle
+  const yearHtml = siteSettings.showCopyrightYear
+    ? '<span data-copyright-year></span> - '
+    : ''
+  // Computed client-side (not baked in at export time) so the year stays
+  // correct indefinitely without the student ever needing to re-export.
+  const copyrightYearScript = siteSettings.showCopyrightYear
+    ? `<script>document.querySelectorAll('[data-copyright-year]').forEach(function (el) { el.textContent = new Date().getFullYear(); });</script>`
+    : ''
+
+  // Scoped to the portfolio gallery and its project sub-pages, per the
+  // request -- About/Contact/Publish don't get it.
+  const showBackToTop = siteSettings.showBackToTop === true && (pageKey === 'home' || pageKey === 'project')
+  const backToTopHtml = showBackToTop
+    ? `<button type="button" class="back-to-top" data-back-to-top aria-label="Back to top">&#8593;</button>`
+    : ''
+  const backToTopScript = showBackToTop
+    ? `<script>(function () { var btn = document.querySelector('[data-back-to-top]'); if (!btn) return; btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }); })();</script>`
+    : ''
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -81,12 +103,15 @@ ${renderThemeStyleTag(siteSettings)}
   <nav class="site-nav-inline">${nav}</nav>
 </header>
 <main>${bodyHtml}</main>
-<footer class="site-footer"><p>&copy; ${escapeHtml(siteTitle)}</p></footer>
+<footer class="site-footer"><p>&copy; ${yearHtml}${escapeHtml(footerLabel)}</p></footer>
 </div>
 <nav class="site-nav-drawer" data-site-nav>${nav}</nav>
+${backToTopHtml}
 ${renderLightboxMarkup()}
 <script>${lightboxScript}</script>
 <script>${navToggleScript}</script>
+${copyrightYearScript}
+${backToTopScript}
 ${isPreview ? `<script>${previewNavScript}</script>` : ''}
 </body>
 </html>`

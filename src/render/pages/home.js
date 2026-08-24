@@ -10,7 +10,8 @@ export function renderHomePage(project, resolveAsset, { isPreview = false } = {}
   }
 
   const tiles = projects.map((proj) => renderGalleryTile(proj, resolveAsset, isPreview)).join('\n')
-  return `<div class="gallery">${tiles}</div>`
+  const captionStyle = project.siteSettings.captionStyle || 'underneath'
+  return `<div class="gallery caption-${escapeHtml(captionStyle)}">${tiles}</div>`
 }
 
 // Image thumbnail if the project has one; otherwise the YouTube thumbnail

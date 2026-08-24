@@ -79,6 +79,16 @@ function resolveAlign(value, fallback) {
   return value === 'center' ? 'center' : value === 'left' ? 'left' : fallback === 'center' ? 'center' : 'left'
 }
 
+// Used for the gallery caption gradient, which needs raw r,g,b components so
+// it can vary the alpha channel (rgba(var(--x), 0.75)) -- a plain hex custom
+// property can't do that.
+function hexToRgbTriplet(hex) {
+  const clean = (hex || '#000000').replace('#', '')
+  const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean
+  const num = parseInt(full, 16) || 0
+  return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`
+}
+
 export function renderThemeStyleTag(siteSettings) {
   const palette = siteSettings.colorPalette
   const pair = resolveFontPair(siteSettings.fontPairId)
@@ -107,12 +117,23 @@ export function renderThemeStyleTag(siteSettings) {
   --description-align: ${descriptionAlign};
   --caption-align: ${captionAlign};
   --image-radius: ${siteSettings.imageCornerRadius ?? 8}px;
+  --caption-gradient-rgb: ${hexToRgbTriplet(palette.captionGradient)};
   --nav-drawer-width: min(320px, 82vw);
 }
 ${BASE_CSS}
 ${renderAccentLineCss(siteSettings)}
 ${renderNavToggleCss(siteSettings)}
+${renderFullscreenCaptionCss(siteSettings)}
 </style>`
+}
+
+// Preserves today's always-on lightbox caption for existing projects; this
+// setting is just a way to turn off what already happens by default.
+function renderFullscreenCaptionCss(siteSettings) {
+  if (siteSettings.fullscreenCaption === false) {
+    return '.lightbox-caption { display: none; }'
+  }
+  return ''
 }
 
 // Projects saved before this field existed have it as `undefined`, not
@@ -248,7 +269,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   grid-template-columns: repeat(var(--gallery-columns), 1fr);
   gap: 1.75rem;
 }
-.gallery-item { display: block; text-decoration: none; color: inherit; }
+.gallery-item { position: relative; display: block; text-decoration: none; color: inherit; }
 .gallery-thumb {
   aspect-ratio: var(--gallery-aspect-ratio);
   border-radius: var(--image-radius);
@@ -258,6 +279,31 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .gallery-thumb-placeholder { width: 100%; height: 100%; }
 .gallery-caption { margin: 0.6rem 0 0; font-weight: 500; text-align: var(--title-align); }
+
+/* Overlay caption styles: the caption is taken out of flow and pinned to
+   the bottom of .gallery-item (which sizes itself to .gallery-thumb, since
+   the caption no longer contributes flow height), with a bottom-up
+   gradient behind it for contrast. */
+.gallery.caption-overlay .gallery-caption,
+.gallery.caption-overlay-hover .gallery-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 1.5rem 0.85rem 0.75rem;
+  color: #fff;
+  border-radius: 0 0 var(--image-radius) var(--image-radius);
+  background: linear-gradient(to top, rgba(var(--caption-gradient-rgb), 0.75), rgba(var(--caption-gradient-rgb), 0));
+}
+.gallery.caption-overlay-hover .gallery-caption {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.gallery.caption-overlay-hover .gallery-item:hover .gallery-caption,
+.gallery.caption-overlay-hover .gallery-item:focus-visible .gallery-caption {
+  opacity: 1;
+}
 
 .project-detail { max-width: 800px; margin: 0 auto; }
 .project-detail h2 {
@@ -290,7 +336,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   padding: 0;
   border: none;
   background: none;
-  cursor: pointer;
+  cursor: zoom-in;
   width: 100%;
   display: block;
   border-radius: var(--image-radius);
@@ -374,6 +420,27 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 }
 
 .site-footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; opacity: 0.6; }
+
+.back-to-top {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  z-index: 500;
+}
+.back-to-top:hover { background: var(--color-primary-hover); }
 
 .lightbox {
   position: fixed;
