@@ -448,6 +448,11 @@
     gap: 0;
     max-height: calc(100vh - 5rem);
     overflow-y: auto;
+    /* Setting only overflow-y implicitly promotes overflow-x's default
+       'visible' to 'auto' too (per the CSS overflow spec), so any content
+       sitting right at the container's edge width starts showing a
+       horizontal scrollbar as well -- pin it to hidden explicitly. */
+    overflow-x: hidden;
   }
 
   label {
