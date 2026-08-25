@@ -78,6 +78,11 @@ export const lightboxScript = `(function () {
       iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
       iframe.allowFullscreen = true;
       el.replaceWith(iframe);
+      // In overlay/overlay-hover caption modes, the caption sits on top of
+      // the media -- fine over a static thumbnail, but it would cover the
+      // player's own controls once a video is actually playing.
+      var mediaItem = iframe.closest('.media-item');
+      if (mediaItem) mediaItem.classList.add('video-playing');
     });
   });
 })();`

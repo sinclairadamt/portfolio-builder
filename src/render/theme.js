@@ -377,6 +377,13 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 .media-grid.caption-overlay-hover .media-item:focus-within figcaption {
   opacity: 1;
 }
+/* Once a video is actually playing (see lightboxScript), the overlay
+   caption would sit on top of the player's own controls -- hide it rather
+   than block them. */
+.media-grid.caption-overlay .media-item.video-playing figcaption,
+.media-grid.caption-overlay-hover .media-item.video-playing figcaption {
+  display: none;
+}
 
 .youtube-facade {
   position: relative;
