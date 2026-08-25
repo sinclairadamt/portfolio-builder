@@ -215,6 +215,12 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   line-height: 1.6;
+  /* Sticky footer: body and .page-shell both stretch to fill the viewport,
+     and main's flex:1 pushes the footer to the bottom on short pages while
+     still flowing naturally (and scrolling) once content grows past it. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 h1, h2, h3 { font-family: var(--font-heading); line-height: 1.25; }
 a { color: var(--color-primary); }
@@ -262,7 +268,8 @@ img { max-width: 100%; display: block; }
 .site-nav-drawer { display: none; }
 .nav-toggle { display: none; background: none; border: none; font-size: 1.75rem; line-height: 1; cursor: pointer; color: var(--color-text); padding: 0.25rem; }
 
-main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.page-shell { display: flex; flex-direction: column; min-height: 100vh; width: 100%; }
+main { flex: 1; max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; width: 100%; }
 
 .gallery {
   display: grid;
@@ -448,6 +455,11 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 .site-footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; opacity: 0.6; }
 
 .back-to-top {
+  /* Hidden by default -- the inline script only reveals it (display:flex)
+     once it confirms the page actually overflows the viewport, and a
+     button that can't do anything without JS shouldn't show without it
+     either. */
+  display: none;
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
@@ -460,7 +472,6 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
-  display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);

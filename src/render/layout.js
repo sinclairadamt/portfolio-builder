@@ -77,8 +77,21 @@ export function renderPage({
   const backToTopHtml = showBackToTop
     ? `<button type="button" class="back-to-top" data-back-to-top aria-label="Back to top">&#8593;</button>`
     : ''
+  // Only ever shown when the page actually has room to scroll -- checked on
+  // load and again on resize, since a window resize can change whether
+  // content overflows the viewport.
   const backToTopScript = showBackToTop
-    ? `<script>(function () { var btn = document.querySelector('[data-back-to-top]'); if (!btn) return; btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }); })();</script>`
+    ? `<script>(function () {
+  var btn = document.querySelector('[data-back-to-top]');
+  if (!btn) return;
+  function updateVisibility() {
+    var scrollable = document.documentElement.scrollHeight > window.innerHeight + 1;
+    btn.style.display = scrollable ? 'flex' : 'none';
+  }
+  updateVisibility();
+  window.addEventListener('resize', updateVisibility);
+  btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+})();</script>`
     : ''
 
   return `<!doctype html>
