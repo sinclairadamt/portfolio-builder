@@ -331,7 +331,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   flex-direction: column;
   gap: 2rem;
 }
-.media-item { margin: 0; width: 100%; }
+.media-item { position: relative; margin: 0; width: 100%; }
 .media-image-button {
   padding: 0;
   border: none;
@@ -344,6 +344,32 @@ main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 }
 .media-image-button img { width: 100%; height: auto; display: block; }
 figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: var(--caption-align); }
+
+/* Overlay caption styles, matching the gallery's treatment -- the caption
+   is taken out of flow and pinned to the bottom of .media-item, which
+   works for both image buttons and the youtube facade since both leave
+   .media-item sized to their own content. */
+.media-grid.caption-overlay figcaption,
+.media-grid.caption-overlay-hover figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 1.5rem 0.85rem 0.75rem;
+  color: #fff;
+  opacity: 1;
+  background: linear-gradient(to top, rgba(var(--caption-gradient-rgb), 0.75), rgba(var(--caption-gradient-rgb), 0));
+  border-radius: 0 0 var(--image-radius) var(--image-radius);
+}
+.media-grid.caption-overlay-hover figcaption {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.media-grid.caption-overlay-hover .media-item:hover figcaption,
+.media-grid.caption-overlay-hover .media-item:focus-within figcaption {
+  opacity: 1;
+}
 
 .youtube-facade {
   position: relative;
@@ -454,11 +480,39 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   z-index: 1000;
 }
 .lightbox[hidden] { display: none; }
+.lightbox-media {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  max-height: calc(100vh - 4rem);
+}
 /* calc() accounts for the lightbox's own 2rem top+bottom padding, so the
    image actually reaches the full available height instead of overflowing
    past the viewport edge behind it. */
-.lightbox-image { max-width: 100%; max-height: calc(100vh - 4rem); }
+.lightbox-image { max-width: 100%; max-height: calc(100vh - 4rem); display: block; }
 .lightbox-caption { color: white; margin-top: 1rem; text-align: center; }
+
+/* Overlay caption styles, matching the gallery/media-grid treatment. */
+.lightbox.caption-overlay .lightbox-caption,
+.lightbox.caption-overlay-hover .lightbox-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 2rem 1rem 1rem;
+  background: linear-gradient(to top, rgba(var(--caption-gradient-rgb), 0.75), rgba(var(--caption-gradient-rgb), 0));
+}
+.lightbox.caption-overlay-hover .lightbox-caption {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.lightbox.caption-overlay-hover .lightbox-media:hover .lightbox-caption,
+.lightbox.caption-overlay-hover .lightbox-media:focus-within .lightbox-caption {
+  opacity: 1;
+}
 .lightbox-close {
   position: absolute;
   top: 1.25rem;

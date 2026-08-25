@@ -1,10 +1,15 @@
-export function renderLightboxMarkup() {
-  return `<div id="lightbox" class="lightbox" hidden>
+// captionStyle mirrors the gallery/media-grid caption treatment
+// (underneath/overlay/overlay-hover) so the fullscreen view stays visually
+// consistent with the rest of the site.
+export function renderLightboxMarkup(captionStyle = 'underneath') {
+  return `<div id="lightbox" class="lightbox caption-${captionStyle}" hidden>
   <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
   <button type="button" class="lightbox-nav lightbox-prev" aria-label="Previous image" hidden>&#8249;</button>
-  <img class="lightbox-image" src="" alt="">
+  <div class="lightbox-media">
+    <img class="lightbox-image" src="" alt="">
+    <p class="lightbox-caption"></p>
+  </div>
   <button type="button" class="lightbox-nav lightbox-next" aria-label="Next image" hidden>&#8250;</button>
-  <p class="lightbox-caption"></p>
 </div>`
 }
 

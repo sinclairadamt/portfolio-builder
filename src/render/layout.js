@@ -107,7 +107,7 @@ ${renderThemeStyleTag(siteSettings)}
 </div>
 <nav class="site-nav-drawer" data-site-nav>${nav}</nav>
 ${backToTopHtml}
-${renderLightboxMarkup()}
+${renderLightboxMarkup(siteSettings.captionStyle || 'underneath')}
 <script>${lightboxScript}</script>
 <script>${navToggleScript}</script>
 ${copyrightYearScript}
