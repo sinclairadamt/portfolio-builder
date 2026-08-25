@@ -8,6 +8,13 @@
   let currentPageKey = $state(untrack(() => pageKey))
   let currentProjectId = $state(untrack(() => projectId))
   let requestToken = 0
+  let iframeEl = $state(null)
+  // Plain bookkeeping (not template-reactive) for deciding whether a
+  // re-render is "the same page, just edited" (preserve scroll) or a real
+  // navigation to a different page/project (reset to top, like a real load).
+  let lastRenderedKey = null
+  let lastRenderedProjectId = null
+  let pendingScrollY = 0
 
   // Reset to whatever page/project the parent screen is asking for --
   // e.g. the Portfolio editor requests the selected project's own page while
@@ -62,7 +69,13 @@
         // Falls back to the gallery if the previewed project no longer exists
         // (e.g. deleted in the editor while its page happened to be open here).
         const nextHtml = key === 'project' ? pages.projects[projectId] ?? pages.home : pages[key]
-        if (token === requestToken) html = nextHtml
+        if (token === requestToken) {
+          const isSamePage = key === lastRenderedKey && projectId === lastRenderedProjectId
+          pendingScrollY = isSamePage && iframeEl?.contentWindow ? iframeEl.contentWindow.scrollY : 0
+          html = nextHtml
+          lastRenderedKey = key
+          lastRenderedProjectId = projectId
+        }
       } catch (err) {
         console.error('Preview render failed', err)
       }
@@ -72,7 +85,13 @@
 
 <div class="preview-pane">
   <p class="preview-label">Live Preview — {previewLabel}</p>
-  <iframe title="Site preview" srcdoc={html} style="min-height: {minHeight}"></iframe>
+  <iframe
+    title="Site preview"
+    srcdoc={html}
+    style="min-height: {minHeight}"
+    bind:this={iframeEl}
+    onload={() => iframeEl?.contentWindow?.scrollTo(0, pendingScrollY)}
+  ></iframe>
 </div>
 
 <style>
