@@ -9,11 +9,20 @@ export function renderAboutPage(project, resolveAsset) {
     ? `<a class="button resume-button" href="${resumeSrc}" download>Download Resume (PDF)</a>`
     : ''
 
+  // The resume button sits under the photo. Without a photo, an aside holding
+  // only a button would look stranded beside the bio, so it stays under the text.
+  const asideHtml = photoHtml
+    ? `<div class="about-aside">
+    ${photoHtml}
+    ${resumeHtml}
+  </div>`
+    : ''
+
   return `<section class="about">
-  ${photoHtml}
+  ${asideHtml}
   <div class="about-bio">
     <p>${escapeHtmlMultiline(project.about.bio)}</p>
-    ${resumeHtml}
+    ${photoHtml ? '' : resumeHtml}
   </div>
 </section>`
 }

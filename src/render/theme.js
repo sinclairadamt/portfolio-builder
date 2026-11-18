@@ -407,8 +407,13 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 .media-item iframe { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--image-radius); }
 
 .about { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
+.about-aside { display: flex; flex-direction: column; gap: 1rem; width: 220px; flex-shrink: 0; }
 .about-photo { width: 220px; height: 220px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+.about-aside .resume-button { margin-top: 0; text-align: center; }
 .about-bio { flex: 1; min-width: 240px; }
+/* Drop the paragraph's default top margin so the first line of the bio
+   lines up with the top of the photo. */
+.about-bio p { margin-top: 0; }
 
 .button {
   display: inline-block;
@@ -571,6 +576,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   .site-nav-inline { gap: 0.75rem; font-size: 0.9rem; }
   main { padding: 1.5rem 1rem 3rem; }
   .contact { grid-template-columns: 1fr; }
+  .about-aside { width: 160px; }
   .about-photo { width: 160px; height: 160px; }
   /* Ignore the chosen column count on phones -- 4-5 columns from a desktop
      setting would cram the gallery unreadably small. */
