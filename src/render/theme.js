@@ -408,7 +408,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 
 .about { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
 .about-aside { display: flex; flex-direction: column; gap: 1rem; width: 220px; flex-shrink: 0; }
-.about-photo { width: 220px; height: 220px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+.about-photo { width: 220px; height: 220px; object-fit: cover; border-radius: var(--image-radius); flex-shrink: 0; }
 .about-aside .resume-button { margin-top: 0; text-align: center; }
 .about-bio { flex: 1; min-width: 240px; }
 /* Drop the paragraph's default top margin so the first line of the bio

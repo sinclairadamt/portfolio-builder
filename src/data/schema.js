@@ -38,7 +38,7 @@ export function createEmptyProject() {
       titleAlign: 'left', // 'left' | 'center' -- portfolio project title
       descriptionAlign: 'left',
       captionAlign: 'left',
-      imageCornerRadius: 8, // px -- gallery thumbs, project media, video facades
+      imageCornerRadius: 8, // px -- gallery thumbs, project media, video facades, About photo
       captionStyle: 'underneath', // 'underneath' | 'overlay' | 'overlay-hover' -- gallery tile captions
       // Preserves current always-on behavior for existing projects; this is
       // just a way to turn off what already happens today.
