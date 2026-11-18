@@ -357,7 +357,7 @@
               </div>
             {/if}
 
-            <label for="image-corner-radius">Corner Radius</label>
+            <label for="image-corner-radius">Image Corner Radius</label>
             <input
               id="image-corner-radius"
               type="number"
@@ -368,6 +368,21 @@
                 const value = Number(e.target.value)
                 if (!Number.isInteger(value) || value < 0 || value > 40) return
                 settings.imageCornerRadius = value
+                update()
+              }}
+            />
+
+            <label for="ui-corner-radius">Text/Button Radius</label>
+            <input
+              id="ui-corner-radius"
+              type="number"
+              min="0"
+              max="40"
+              value={settings.uiCornerRadius ?? 6}
+              oninput={(e) => {
+                const value = Number(e.target.value)
+                if (!Number.isInteger(value) || value < 0 || value > 40) return
+                settings.uiCornerRadius = value
                 update()
               }}
             />

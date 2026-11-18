@@ -117,6 +117,7 @@ export function renderThemeStyleTag(siteSettings) {
   --description-align: ${descriptionAlign};
   --caption-align: ${captionAlign};
   --image-radius: ${siteSettings.imageCornerRadius ?? 8}px;
+  --ui-radius: ${siteSettings.uiCornerRadius ?? 6}px;
   --caption-gradient-rgb: ${hexToRgbTriplet(palette.captionGradient)};
   --nav-drawer-width: min(320px, 82vw);
 }
@@ -418,7 +419,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 .button {
   display: inline-block;
   padding: 0.6rem 1.2rem;
-  border-radius: 6px;
+  border-radius: var(--ui-radius);
   background: var(--color-primary);
   color: white;
   text-decoration: none;
@@ -440,7 +441,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
 .contact-form input, .contact-form textarea {
   padding: 0.6rem;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
+  border-radius: var(--ui-radius);
   font: inherit;
   background: var(--form-bg);
   color: inherit;
@@ -457,7 +458,7 @@ figcaption { font-size: 0.85rem; margin-top: 0.4rem; opacity: 0.7; text-align: v
   align-self: flex-start;
   padding: 0.6rem 1.4rem;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--ui-radius);
   background: var(--color-primary);
   color: white;
   font-weight: 600;

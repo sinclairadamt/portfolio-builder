@@ -39,6 +39,9 @@ export function createEmptyProject() {
       descriptionAlign: 'left',
       captionAlign: 'left',
       imageCornerRadius: 8, // px -- gallery thumbs, project media, video facades, About photo
+      // px -- buttons and contact form fields. 6 matches the radius these
+      // used before it was configurable, so existing sites don't change.
+      uiCornerRadius: 6,
       captionStyle: 'underneath', // 'underneath' | 'overlay' | 'overlay-hover' -- gallery tile captions
       // Preserves current always-on behavior for existing projects; this is
       // just a way to turn off what already happens today.
